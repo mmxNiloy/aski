@@ -1,3 +1,6 @@
+import 'package:aski/pages/dashboard/dashboard.dart';
+import 'package:aski/pages/sign_up_page/sign_up_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatefulWidget {
@@ -16,46 +19,64 @@ class LoginFormState extends State<LoginForm> {
   String password = '';
   bool showPassword = false;
   final _loginFormKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _loginFormKey,
       child: FractionallySizedBox(
-        widthFactor: 0.5,
+        widthFactor: 1,
         child: Column(
           children: <Widget>[
             // Title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              child: Text(
-                'Welcome to',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32
+            const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  fit: FlexFit.loose,
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    child: Text(
+                      'Welcome to',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 32,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                // Placeholder Text Logo
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                    child: Text(
+                      'ASKi',
+                      style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic
+                      ),
+                    ),
+                  ),
+                ),
+                // Issue: Apply appropriate margin, padding, and size of the logo here
+                // Flexible(
+                //   fit: FlexFit.loose,
+                //   flex: 1,
+                //   child: Image(
+                //     image: AssetImage('images/logo_dark.png'),
+                //     height: 300,
+                //     width: 300,
+                //     fit: BoxFit.cover,
+                //   ),
+                // )
+              ],
             ),
 
-            // Placeholder Text Logo
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-              child: Text(
-                'ASKi',
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic
-                ),
-              ),
-            ),
-
-            // Issue: Apply appropriate margin, padding, and size of the logo here
-            // const Image(
-            //   image: AssetImage('images/logo_dark.png'),
-            //   height: 300,
-            //   width: 300,
-            // ),
             // Email text field
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
@@ -64,7 +85,7 @@ class LoginFormState extends State<LoginForm> {
                     border: OutlineInputBorder(),
                     labelText: 'Enter your email'
                 ),
-                validator: (value) => isValidEmail(value) ? null : 'Invalid Email Address',
+                validator: validateEmail,
                 onChanged: (value) => setState(() => email = value),
                 initialValue: email,
               ),
@@ -100,17 +121,7 @@ class LoginFormState extends State<LoginForm> {
                 style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48)
                 ),
-                onPressed: () => {
-                  if(_loginFormKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                'TODO: Firebase Auth\nInput email: $email\nPassword$password'
-                            )
-                        )
-                    )
-                  }
-                },
+                onPressed: isLoading ? null : login,
                 child: const Text(
                   'Login',
                   style: TextStyle(
@@ -166,6 +177,7 @@ class LoginFormState extends State<LoginForm> {
                       'https://img.icons8.com/color/48/facebook-new.png',
                       height: 48,
                       width: 48,
+                      errorBuilder: (context, error, stackTrace) => drawErrorIcon(context),
                     )
                 ),
                 // Google
@@ -175,6 +187,7 @@ class LoginFormState extends State<LoginForm> {
                       'https://img.icons8.com/color/48/google-logo.png',
                       height: 48,
                       width: 48,
+                      errorBuilder: (context, error, stackTrace) => drawErrorIcon(context),
                     )
                 ),
                 // Twitter X
@@ -184,6 +197,7 @@ class LoginFormState extends State<LoginForm> {
                       'https://img.icons8.com/color/48/twitter--v1.png',
                       height: 48,
                       width: 48,
+                      errorBuilder: (context, error, stackTrace) => drawErrorIcon(context),
                     )
                 ),
               ],
@@ -226,7 +240,7 @@ class LoginFormState extends State<LoginForm> {
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48)
                   ),
-                  onPressed: () => redirectToSignup(),
+                  onPressed: redirectToSignup,
                   child: const Text(
                     'Sign Up',
                     style: TextStyle(
@@ -241,8 +255,14 @@ class LoginFormState extends State<LoginForm> {
     );
   }
 
-  bool isValidEmail(String? email) => RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-      .hasMatch(email!);
+  String? validateEmail(String? email) {
+    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email!)) {
+      return null;
+    }
+
+    return 'Invalid email';
+  }
 
   bool loginUsingFacebook() {
     // TODO: Implement Login method Facebook
@@ -264,6 +284,53 @@ class LoginFormState extends State<LoginForm> {
   }
 
   void redirectToSignup() {
-    // TODO: Redirect to sign up page.
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpPage()));
+  }
+
+  Widget drawErrorIcon(BuildContext context) {
+    return Icon(
+      Icons.error_outlined,
+      color: Theme.of(context).colorScheme.error,
+    );
+  }
+
+  Future<void> login() async {
+    if(!context.mounted || isLoading) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    if(_loginFormKey.currentState!.validate()) {
+      // Try logging in with email and password
+      String message = '';
+      try {
+        final creds = await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email,
+            password: password
+        );
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboard()));
+        return;
+      } on FirebaseAuthException catch(err) {
+        if(err.code == 'user-not-found') {
+          message = 'There is no account for this email, $email';
+        } else if(err.code == 'wrong-password') {
+          message = 'The given password is incorrect.';
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'message: $message'
+              )
+          )
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

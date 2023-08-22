@@ -16,12 +16,12 @@ This is the landing page.
 6. Sign-up button
 
 -- Subtask 2: Login form --
-i) Email: Input Text Field
-ii) Password: Input Text Field
-iii) Email validation
-iv) Password length validation
-v) Show error message, refer to material error text
-vi) Login: Button
+i) Email: Input Text Field [x]
+ii) Password: Input Text Field [x]
+iii) Email validation [x]
+iv) Password length validation [x]
+v) Show error message, refer to material error text [x]
+vi) Login: Button [x]
 vii) Enable Login button if the given creds pass primary validation
 
 -- Subtask 3: Login button --
@@ -33,7 +33,7 @@ iii) Redirect to dashboard on success.
 i) Redirect to account recovery page
 
 -- Subtask 5: Login Methods --
-i) Google, Facebook, Twitter, etc
+i) Google, Facebook, Twitter, etc [x]
 ii) Show an error dialog on failure.
 iii) Redirect to dashboard on success.
 
@@ -41,33 +41,24 @@ iii) Redirect to dashboard on success.
 i) Redirect to sign-up page
 */
 
+import 'package:aski/pages/main_home_page/components/login_form.dart';
 import 'package:flutter/material.dart';
-import './components/login_form.dart';
 
-class MainHomePage extends StatefulWidget {
+class MainHomePage extends StatelessWidget {
   const MainHomePage({super.key});
 
   @override
-  State<StatefulWidget> createState() => MainHomePageState();
-}
-
-class MainHomePageState extends State<MainHomePage> {
-  // Declare child components here
-  LoginForm loginForm = const LoginForm();
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
         body: Center(
             child: Wrap(
               children: <Widget>[
                 Card(
-                  child: loginForm,
+                    child: LoginForm()
                 )
               ],
             )
         )
     );
   }
-
 }
