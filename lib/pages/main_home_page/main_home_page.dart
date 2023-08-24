@@ -51,12 +51,14 @@ class MainHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
         body: Center(
-            child: Wrap(
-              children: <Widget>[
-                Card(
-                    child: LoginForm()
-                )
-              ],
+            child: SingleChildScrollView(
+              child: Wrap(
+                children: <Widget>[
+                  Card(
+                      child: LoginForm()
+                  )
+                ],
+              ),
             )
         )
     );

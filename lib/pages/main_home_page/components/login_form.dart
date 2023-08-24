@@ -2,6 +2,7 @@ import 'package:aski/pages/dashboard/dashboard.dart';
 import 'package:aski/pages/sign_up_page/sign_up_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -182,7 +183,14 @@ class LoginFormState extends State<LoginForm> {
                 ),
                 // Google
                 IconButton(
-                    onPressed: () => loginUsingGoogle(),
+                    onPressed: () async {
+                      try {
+                        await signInWithGoogle();
+                      } on Error catch(e) {
+                        print('Web app found!');
+                        print(e.stackTrace);
+                      }
+                    },
                     icon: Image.network(
                       'https://img.icons8.com/color/48/google-logo.png',
                       height: 48,
@@ -270,12 +278,46 @@ class LoginFormState extends State<LoginForm> {
     // Return true on success
     return false;
   }
-  bool loginUsingGoogle() {
-    // TODO: Implement Login method Facebook
-    // Call Facebook API and get a response
-    // Return true on success
-    return false;
+
+  Future<UserCredential> signInWithGoogle() async {
+    print('Google sign in helper method');
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
+
+  Future<UserCredential> signInWithGoogleWeb() async {
+    print('Web sign in helper method');
+
+    // Create a new provider
+    GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+    googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    googleProvider.setCustomParameters({
+      'login_hint': 'user@example.com'
+    });
+
+    // Once signed in, return the UserCredential
+    final userCreds = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+    print(userCreds.user.toString());
+    return userCreds;
+
+    // Or use signInWithRedirect
+    // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
+
+  }
+
   bool loginUsingTwitter() {
     // TODO: Implement Login method Facebook
     // Call Facebook API and get a response
@@ -311,6 +353,7 @@ class LoginFormState extends State<LoginForm> {
         );
 
         Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboard()));
+        setState(() { isLoading = false; });
         return;
       } on FirebaseAuthException catch(err) {
         if(err.code == 'user-not-found') {
