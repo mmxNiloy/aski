@@ -1,6 +1,7 @@
 import 'package:aski/pages/dashboard/dashboard.dart';
 import 'package:aski/pages/sign_up_page/sign_up_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -183,14 +184,7 @@ class LoginFormState extends State<LoginForm> {
                 ),
                 // Google
                 IconButton(
-                    onPressed: () async {
-                      try {
-                        await signInWithGoogle();
-                      } on Error catch(e) {
-                        print('Web app found!');
-                        print(e.stackTrace);
-                      }
-                    },
+                    onPressed: signInWithGoogle,
                     icon: Image.network(
                       'https://img.icons8.com/color/48/google-logo.png',
                       height: 48,
@@ -280,7 +274,8 @@ class LoginFormState extends State<LoginForm> {
   }
 
   Future<UserCredential> signInWithGoogle() async {
-    print('Google sign in helper method');
+    if(kDebugMode) print('Google sign in helper method');
+
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -295,27 +290,6 @@ class LoginFormState extends State<LoginForm> {
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
-
-  Future<UserCredential> signInWithGoogleWeb() async {
-    print('Web sign in helper method');
-
-    // Create a new provider
-    GoogleAuthProvider googleProvider = GoogleAuthProvider();
-
-    googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-    googleProvider.setCustomParameters({
-      'login_hint': 'user@example.com'
-    });
-
-    // Once signed in, return the UserCredential
-    final userCreds = await FirebaseAuth.instance.signInWithPopup(googleProvider);
-    print(userCreds.user.toString());
-    return userCreds;
-
-    // Or use signInWithRedirect
-    // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
-
   }
 
   bool loginUsingTwitter() {
@@ -337,6 +311,7 @@ class LoginFormState extends State<LoginForm> {
   }
 
   Future<void> login() async {
+    // It shouldn't be here but oh well, if it ain't broke don't fix it.
     if(!context.mounted || isLoading) return;
 
     setState(() {
@@ -347,12 +322,15 @@ class LoginFormState extends State<LoginForm> {
       // Try logging in with email and password
       String message = '';
       try {
-        final creds = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: email,
             password: password
         );
 
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboard()));
+        if(context.mounted) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const Dashboard()));
+        }
         setState(() { isLoading = false; });
         return;
       } on FirebaseAuthException catch(err) {
@@ -363,13 +341,10 @@ class LoginFormState extends State<LoginForm> {
         }
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'message: $message'
-              )
-          )
-      );
+      if(context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('message: $message')));
+      }
 
       setState(() {
         isLoading = false;
