@@ -12,7 +12,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  FirebaseAuth.instanceFor(app: Firebase.app(), persistence: Persistence.LOCAL);
+  //FirebaseAuth.instanceFor(app: Firebase.app(), persistence: Persistence.LOCAL);
 
   runApp(const App());
 }

@@ -119,12 +119,13 @@ class LoginFormState extends State<LoginForm> {
             // Login button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              child: OutlinedButton(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.login),
                 style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48)
                 ),
                 onPressed: isLoading ? null : login,
-                child: const Text(
+                label: const Text(
                   'Login',
                   style: TextStyle(
                     fontSize: 16
@@ -238,12 +239,13 @@ class LoginFormState extends State<LoginForm> {
             ),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                child: OutlinedButton(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.person_add_alt_1_rounded),
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48)
+                    minimumSize: const Size.fromHeight(48),
                   ),
                   onPressed: redirectToSignup,
-                  child: const Text(
+                  label: const Text(
                     'Sign Up',
                     style: TextStyle(
                         fontSize: 16
@@ -258,7 +260,7 @@ class LoginFormState extends State<LoginForm> {
   }
 
   String? validateEmail(String? email) {
-    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email!)) {
       return null;
     }
