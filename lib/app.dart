@@ -8,16 +8,13 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     // Main app layout
     return MaterialApp(
-      title: 'ASKi',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true
-      ),
-      darkTheme: ThemeData.dark(useMaterial3: true),
-      themeMode: ThemeMode.system,
-      home: const MainHomePage()
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'ASKi',
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true),
+        darkTheme: ThemeData.dark(useMaterial3: true),
+        themeMode: ThemeMode.system,
+        home: const MainHomePage());
   }
-
-
 }
