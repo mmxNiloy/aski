@@ -1,3 +1,8 @@
+import 'package:aski/models/user_model.dart';
+import 'package:aski/pages/dashboard/dashboard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -8,419 +13,238 @@ class SignUpForm extends StatefulWidget {
 
 }
 
-class StepNames {
-  static int get basicInfo => 0;
-  static int get emailAndPassword => 1;
-  static int get verification => 2;
-}
-
 class SignUpFormState extends State<SignUpForm> {
   String firstName = '';
   String lastName = '';
-  String username = '';
   String email = '';
+  String? emailErrorMessage;
   String password = '';
-  String repeatedPassword = '';
+  String? passErrorMessage;
   bool showPassword = false;
-  bool showRepeatPassword = false;
-  int currentStep = StepNames.basicInfo;
-  String verificationCode = '';
+  bool isTnCChecked = false;
 
-  final _basicInfoFormKey = GlobalKey<FormState>();
-  final _emailPassFormKey = GlobalKey<FormState>();
-  final _verificationFormKey = GlobalKey<FormState>();
+  final _signupFormKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Title
-        const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              fit: FlexFit.loose,
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                child: Text(
-                  'Sign up to',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 32,
-                  ),
-                ),
+    return Form(
+      key: _signupFormKey,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            child: Text(
+              'Sign Up',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: TextFormField(
+              onChanged: (value) => setState(() => firstName = value),
+              validator: validateName,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'First Name'
               ),
             ),
-            // Placeholder Text Logo
-            Flexible(
-              fit: FlexFit.loose,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                child: Text(
-                  'ASKi',
-                  style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic
-                  ),
-                ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: TextFormField(
+              onChanged: (value) => setState(() => lastName = value),
+              validator: validateName,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Last Name'
               ),
             ),
-            // Issue: Apply appropriate margin, padding, and size of the logo here
-            // Flexible(
-            //   fit: FlexFit.loose,
-            //   flex: 1,
-            //   child: Image(
-            //     image: AssetImage('images/logo_dark.png'),
-            //     height: 300,
-            //     width: 300,
-            //     fit: BoxFit.cover,
-            //   ),
-            // )
-          ],
-        ),
-
-        // Sign up form steps
-        Stepper(
-        currentStep: currentStep,
-        onStepContinue: goToNextStep,
-        onStepCancel: goToPreviousStep,
-        onStepTapped: (int currentStep) {
-          setState(() {
-            this.currentStep = currentStep;
-          });
-        },
-        steps: [
-          Step(
-              title: const Text(
-                'Basic Information'
-              ),
-              content: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Form(
-                  key: _basicInfoFormKey,
-                  child: Column(
-                    children: <Widget>[
-                      // First name text field
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'First Name'
-                          ),
-                          validator: (value) => (value == null || value.isEmpty) ? 'Enter your first name' : null,
-                          onChanged: (value) => setState(() => firstName = value),
-                          initialValue: firstName,
-                          maxLength: 32,
-                        ),
-                      ),
-
-                      // Last name text field
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Last Name'
-                          ),
-                          validator: (value) => (value == null || value.isEmpty) ? 'Enter your last name' : null,
-                          onChanged: (value) => setState(() => lastName = value),
-                          initialValue: lastName,
-                          maxLength: 32,
-                        ),
-                      ),
-
-                      // Username text field
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Username'
-                          ),
-                          validator: validateUsername,
-                          onChanged: (value) => setState(() => username = value),
-                          initialValue: username,
-                          maxLength: 20,
-                        ),
-                      ),
-
-                      // Sign up button
-                      // Padding(
-                      //     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      //     child: OutlinedButton(
-                      //       style: OutlinedButton.styleFrom(
-                      //           minimumSize: const Size.fromHeight(48)
-                      //       ),
-                      //       onPressed: signup,
-                      //       child: const Text(
-                      //         'Sign Up',
-                      //         style: TextStyle(
-                      //             fontSize: 16
-                      //         ),
-                      //       ),
-                      //     )
-                      // ),
-                    ],
-                  ),
-                ),
-              )
           ),
-          Step(
-              title: const Text(
-                  'Basic Information'
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: TextFormField(
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: 'Enter your email',
+                  errorText: emailErrorMessage,
               ),
-              content: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Form(
-                  key: _emailPassFormKey,
-                  child: Column(
-                    children: <Widget>[
-                      // Email text field
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Enter your email'
-                          ),
-                          validator: validateEmail,
-                          onChanged: (value) => setState(() => email = value),
-                          initialValue: email,
-                        ),
-                      ),
-
-                      // Password text field
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        child: TextFormField(
-                          obscureText: !showPassword,
-                          decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              labelText: 'Enter your password',
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                    showPassword ?
-                                    Icons.visibility_off :
-                                    Icons.visibility
-                                ),
-                                onPressed: () => {
-                                  setState(() => showPassword = !showPassword)
-                                },
-                              )
-                          ),
-                          validator: (value) => (value == null || value.length < 8) ? 'The password is too short' : null,
-                          initialValue: password,
-                          onChanged: (value) => setState(() => password = value),
-                        ),
-                      ),
-
-                      // Repeat Password text field
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        child: TextFormField(
-                          obscureText: !showRepeatPassword,
-                          decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              labelText: 'Confirm your password',
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                    showRepeatPassword ?
-                                    Icons.visibility_off :
-                                    Icons.visibility
-                                ),
-                                onPressed: () => {
-                                  setState(() => showRepeatPassword = !showRepeatPassword)
-                                },
-                              )
-                          ),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) => value == password ? null : 'Password didn\'t match',
-                          initialValue: repeatedPassword,
-                          onChanged: (value) => setState(() => repeatedPassword = value),
-                        ),
-                      ),
-
-                      // Sign up button
-                      // Padding(
-                      //     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      //     child: OutlinedButton(
-                      //       style: OutlinedButton.styleFrom(
-                      //           minimumSize: const Size.fromHeight(48)
-                      //       ),
-                      //       onPressed: signup,
-                      //       child: const Text(
-                      //         'Sign Up',
-                      //         style: TextStyle(
-                      //             fontSize: 16
-                      //         ),
-                      //       ),
-                      //     )
-                      // ),
-                    ],
-                  ),
-                ),
-              )
+              validator: validateEmail,
+              onChanged: (value) => setState(() => email = value),
+              initialValue: email,
+            ),
           ),
-          Step(
-            title: const Text('Finalization'),
-            content: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                children: <Widget>[
-                  Text(
-                      '''
-                      We\'ve sent you and email with verification code at this email address, $email.
-                      Please enter the verification code to activate your account. 
-                      The verification code will expire after 7 days. 
-                      You need to activate your account before the code expires otherwise you need to create a new account.
-                      '''
-                  ),
-                  Form(
-                    key: _verificationFormKey,
-                    child: Column(
-                      children: <Widget>[
-                        // Verification code text field
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Enter the verification code'
-                            ),
-                            // TODO: Add verification code validator here
-                            // validator: ,
-                            onChanged: (value) => setState(() => verificationCode = value),
-                            initialValue: verificationCode,
-                          ),
-                        ),
+          // Password text field
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: TextFormField(
+              obscureText: !showPassword,
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: 'Enter your password',
+                  errorText: passErrorMessage,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                        showPassword ?
+                        Icons.visibility_off :
+                        Icons.visibility
+                    ),
+                    onPressed: () => {
+                      setState(() => showPassword = !showPassword)
+                    },
+                  )
+              ),
+              validator: validatePassword,
+              initialValue: password,
+              onChanged: (value) => setState(() => password = value),
+            ),
+          ),
 
-                        Flex(
-                          direction: Axis.horizontal,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Flexible(
-                              child: // Verify code button
-                              Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.check),
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(48),
-                                    ),
-                                    onPressed: verifyCode,
-                                    label: const Text(
-                                      'Verify',
-                                      style: TextStyle(
-                                          fontSize: 16
-                                      ),
-                                    ),
-                                  )
-                              ),
+          // T&C Checkbox
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: isTnCChecked,
+                    onChanged: (value) => setState(() => isTnCChecked = value!),
+                  ),
+                  Expanded(
+                    child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'I agree with the ',
+                              style: Theme.of(context).textTheme.bodyMedium
                             ),
-                            Flexible(
-                              child: // Resend email button
-                              Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.refresh),
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(48),
-                                    ),
-                                    onPressed: verifyCode,
-                                    label: const Text(
-                                      'Resend Verification Code',
-                                      style: TextStyle(
-                                          fontSize: 16
-                                      ),
-                                    ),
-                                  )
-                              ),
+                            TextSpan(
+                                text: 'Terms and Conditions',
+                                style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()..onTap = () {
+                                  debugPrint('TODO: Link to terms and conditions page');
+                                }
                             )
                           ],
-                        ),
-                      ],
+
+                        )
                     ),
                   )
                 ],
               )
-            )
+          ),
+
+          // Sign-up button
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.check),
+                style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)
+                ),
+                onPressed: signup,
+                label: const Text(
+                  'Sign up',
+                  style: TextStyle(
+                      fontSize: 16
+                  ),
+                ),
+              )
+          ),
+
+          const Padding(padding: EdgeInsets.symmetric(vertical: 8)),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: Text('Already have an account?'),
+          ),
+
+          // Login button
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.login),
+                style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)
+                ),
+                onPressed: () => Navigator.pop(context),
+                label: const Text(
+                  'Login',
+                  style: TextStyle(
+                      fontSize: 16
+                  ),
+                ),
+              )
           ),
         ],
       ),
-      ]
     );
   }
 
-  void goToPreviousStep() {
-    if(currentStep == StepNames.verification) {
-      setState(() {
-        currentStep = StepNames.emailAndPassword;
-      });
-    } else if(currentStep == StepNames.emailAndPassword) {
-      setState(() {
-        currentStep = StepNames.basicInfo;
-      });
-    }
+  String? validateName(String? name) {
+    if(RegExp(r'^[a-zA-Z]+$').hasMatch(name!)) return null;
+
+    return 'Invalid Name';
   }
 
-  void goToNextStep() {
-    // TODO: Validate forms here and block access upon failure
-    if(currentStep == StepNames.basicInfo) {
-      if(_basicInfoFormKey.currentState!.validate()) {
-        setState(() {
-          currentStep = StepNames.emailAndPassword;
-        });
-      }
-    } else if(currentStep == StepNames.emailAndPassword) {
-      if(_emailPassFormKey.currentState!.validate()) {
-        setState(() {
-          currentStep = StepNames.verification;
-        });
-      }
-    } else {
-      // TODO: Redirect to dashboard upon email verification
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('TODO: Send verification email. Verify email or redirect to dashboard.')
-        )
-      );
+  String? validatePassword(String? password) {
+    if(password == null || password.isEmpty || password.length < 8) {
+      return 'The password is too short';
     }
-  }
 
-  String? validateUsername(String? username) {
-    // Regex explanation
-    // username should be 8-20 characters long
-    // has no _., ._, __, __.
-    // has allowed characters
-    // has no . or _ at the end
-    if(RegExp(r"^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$").hasMatch(username!)) {
-      return null;
-    }
-    return 'Invalid username!';
+    return passErrorMessage = null;
   }
 
   String? validateEmail(String? email) {
     if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email!)) {
-      return null;
+      return emailErrorMessage = null;
     }
 
     return 'Invalid email';
   }
 
-  void signup() {
-    if(_emailPassFormKey.currentState!.validate() && _basicInfoFormKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'TODO: Firebase auth\nGiven data, {${{firstName, lastName, username, email, password}.toString()}}'
-              )
-          )
+  Future<void> signup() async {
+    // If T&C are not agreed with
+    if(!isTnCChecked) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(content: Text('You need to agree with our terms and conditions to proceed.'))
       );
+    } else if(_signupFormKey.currentState!.validate()) {
+      // Try to create a user from the given data.
+      try {
+        final creds = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+        // Structure data
+        // TODO: Keep an option for a profile picture,
+        //  or save that option for later in dashboard
+        UserModel userModel = UserModel(firstName: firstName, lastName: lastName);
+
+        // Insert data into firestore
+        final db = FirebaseFirestore.instance;
+        await db.collection('users')
+          .doc(creds.user!.uid)
+          .set(userModel.toMapObject())
+          .onError((error, stackTrace) => debugPrint('Error inserting data, $error'));
+
+        debugPrint('Successfully inserted user data');
+
+        // Redirect to dashboard, prompt first time login BS
+        if(context.mounted) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const Dashboard())
+          );
+        }
+      } on FirebaseAuthException catch(err) {
+        if(err.code == 'weak-password') {
+          passErrorMessage = 'The given password is too weak.';
+        } else if(err.code == 'email-already-in-use') {
+          emailErrorMessage = 'An account exists for this email.';
+        }
+      } catch(err) {
+        debugPrint(err.toString());
+      }
     }
   }
 
