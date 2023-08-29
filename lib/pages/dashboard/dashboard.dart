@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aski/pages/dashboard/dashboard_search_icon.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:aski/models/user_model.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
