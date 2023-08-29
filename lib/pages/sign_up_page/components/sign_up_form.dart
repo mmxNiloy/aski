@@ -10,7 +10,6 @@ class SignUpForm extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => SignUpFormState();
-
 }
 
 class SignUpFormState extends State<SignUpForm> {
@@ -196,14 +195,15 @@ class SignUpFormState extends State<SignUpForm> {
   }
 
   String? validateEmail(String? email) {
-    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    if (RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email!)) {
       return emailErrorMessage = null;
     }
 
     return 'Invalid email';
   }
-
+  
   Future<void> signup() async {
     // If T&C are not agreed with
     if(!isTnCChecked) {
