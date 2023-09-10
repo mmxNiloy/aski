@@ -1,3 +1,4 @@
+import 'package:aski/components/rich_text_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:aski/models/posts_model.dart';
@@ -89,4 +90,5 @@ class _HomeTabState extends State<HomeTab> {
       ),
     );
   }
+
 }

@@ -29,4 +29,27 @@ class PostsModel {
         timestamp: json[_timestampKey]
     );
   }
+
+  @override
+  String toString() {
+    return 'PostModel: {\n\ttitle: $title\n\tmessage: $message\n\townerId: $ownerId\n\ttimestamp: ${timestamp.toString()}\n\tvisibility: $visibility\n}';
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      _titleKey: title,
+      _messageKey: message,
+      _timestampKey: timestamp,
+      _ownerIdKey: ownerId,
+      _visibilityKey: visibility
+    };
+  }
+
+  factory PostsModel.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> snapshot,
+      SnapshotOptions? options
+  ) {
+    final data = snapshot.data();
+    return PostsModel.fromJson(data!);
+  }
 }

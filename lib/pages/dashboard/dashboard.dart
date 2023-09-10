@@ -1,3 +1,4 @@
+import 'package:aski/pages/dashboard/tabs/ask_question_tab.dart';
 import 'package:aski/pages/dashboard/tabs/home_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aski/pages/dashboard/dashboard_search_icon.dart';
@@ -141,7 +142,7 @@ class _DashboardState extends State<Dashboard> {
             ///**WIll call the pages */
             const HomeTab(),
             buildPage('Message'),
-            buildPage('Ask a question'),
+            const AskQuestionTab(),
             buildPage('Notifications')
           ],
         ),
