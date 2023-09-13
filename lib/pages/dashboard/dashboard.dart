@@ -1,3 +1,4 @@
+import 'package:aski/pages/dashboard/tabs/ask_ai_assistant_tab.dart';
 import 'package:aski/pages/dashboard/tabs/ask_question_tab.dart';
 import 'package:aski/pages/dashboard/tabs/home_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -142,7 +143,7 @@ class _DashboardState extends State<Dashboard> {
             ///**WIll call the pages */
             const HomeTab(),
             buildPage('Message'),
-            const AskQuestionTab(),
+            const AIAssistantTab(),
             buildPage('Notifications')
           ],
         ),
