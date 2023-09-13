@@ -1,3 +1,6 @@
+import 'package:aski/pages/dashboard/tabs/ask_ai_assistant_tab.dart';
+import 'package:aski/pages/dashboard/tabs/ask_question_tab.dart';
+import 'package:aski/pages/dashboard/tabs/home_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aski/pages/dashboard/dashboard_search_icon.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -80,21 +83,21 @@ class _DashboardState extends State<Dashboard> {
           ],
 
           ///*** Tab bar part.  */
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
             dividerColor: Colors.black,
             indicatorColor: Colors.white,
             indicatorWeight: 5,
             tabs: [
               Tab(
-                icon: Icon(
+                icon: const Icon(
                   Icons.home,
                   color: Colors.white,
                 ),
                 text: "Home",
                 child: null, //todo
               ),
-              Tab(
+              const Tab(
                 icon: Icon(
                   Icons.message,
                   color: Colors.white,
@@ -138,9 +141,9 @@ class _DashboardState extends State<Dashboard> {
         body: TabBarView(
           children: [
             ///**WIll call the pages */
-            buildPage('Home Page'),
+            const HomeTab(),
             buildPage('Message'),
-            buildPage('Ask a question'),
+            const AIAssistantTab(),
             buildPage('Notifications')
           ],
         ),
