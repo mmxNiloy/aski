@@ -54,6 +54,8 @@ dependencies:
   file_picker: ^5.5.0
   filesystem_picker: ^3.1.0
   html_editor_enhanced: ^2.5.1
+  http: ^0.13.6
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
