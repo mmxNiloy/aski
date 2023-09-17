@@ -12,11 +12,7 @@ class AIAssistantTab extends StatefulWidget {
   State<StatefulWidget> createState() => AIAssistantTabState();
 }
 
-enum Role {
-  user,
-  ai,
-  loading
-}
+enum Role { user, ai, loading }
 
 class AIAssistantTabState extends State<AIAssistantTab> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
@@ -30,12 +26,12 @@ class AIAssistantTabState extends State<AIAssistantTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
+        key: _scaffoldKey,
+        drawer: Drawer(
+            child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -56,69 +52,63 @@ class AIAssistantTabState extends State<AIAssistantTab> {
               },
             ),
           ],
-        )
-      ),
-
-      body: Stack(
-        children: [
-          FloatingActionButton.small(
+        )),
+        body: Stack(
+          children: [
+            FloatingActionButton.small(
               onPressed: openDrawer,
               child: const Icon(Icons.menu),
-          ),
-          Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width / 2.0,
-              child: Column(
-                children: [
-                  // Viewport
-                  SingleChildScrollView(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 2.0 / 3.0,
-                      child: AnimatedList(
-                        reverse: true,
-                        key: _animListKey,
-                        itemBuilder: (context, index, animation) {
-                          return SlideTransition(
-                              position: animation.drive(
-                                  Tween<Offset>(
-                                    begin: const Offset(0, 1),
-                                    end: Offset.zero
-                                  )
-                              ),
-                            child:
-                              _roles[index] == Role.loading ?
-                              const ChatBubbleShimmer() :
-                              ChatBubble(content: _messages[index], isIncoming: _roles[index] == Role.ai),
-                          );
-                        },
+            ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width / 2.0,
+                child: Column(
+                  children: [
+                    // Viewport
+                    SingleChildScrollView(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 2.0 / 3.0,
+                        child: AnimatedList(
+                          reverse: true,
+                          key: _animListKey,
+                          itemBuilder: (context, index, animation) {
+                            return SlideTransition(
+                              position: animation.drive(Tween<Offset>(
+                                  begin: const Offset(0, 1), end: Offset.zero)),
+                              child: _roles[index] == Role.loading
+                                  ? const ChatBubbleShimmer()
+                                  : ChatBubble(
+                                      content: _messages[index],
+                                      isIncoming: _roles[index] == Role.ai),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
 
-                  // Textbox
-                  TextField(
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
+                    // Textbox
+                    TextField(
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
                           icon: const Icon(Icons.send),
                           onPressed: sendMessage,
+                        ),
                       ),
-                    ),
-                    minLines: 1,
-                    maxLines: 8,
-                    onChanged: (value) {
-                      setState(() {
-                        message = value;
-                      });
-                    },
-                  )
-                ],
+                      minLines: 1,
+                      maxLines: 8,
+                      onChanged: (value) {
+                        setState(() {
+                          message = value;
+                        });
+                      },
+                    )
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
-      )
-    );
+            )
+          ],
+        ));
   }
 
   void openDrawer() {
@@ -129,7 +119,8 @@ class AIAssistantTabState extends State<AIAssistantTab> {
   void sendMessage() async {
     _roles.insert(0, Role.user);
     _messages.insert(0, message);
-    _animListKey.currentState?.insertItem(_messages.length - 1, duration: const Duration(milliseconds: 20));
+    _animListKey.currentState?.insertItem(_messages.length - 1,
+        duration: const Duration(milliseconds: 20));
 
     getReply();
   }
@@ -141,18 +132,14 @@ class AIAssistantTabState extends State<AIAssistantTab> {
     // Release the shimmer
     _roles.insert(0, Role.loading);
     _messages.insert(0, '');
-    _animListKey.currentState?.insertItem(_roles.length - 1, duration: const Duration(milliseconds: 20));
+    _animListKey.currentState?.insertItem(_roles.length - 1,
+        duration: const Duration(milliseconds: 20));
 
     // Fetch a reply from the API
 
     // request uri
     final rUri = Uri.http(
-        'blacklabelengineering.pythonanywhere.com',
-        '/',
-        {
-          'message': msg
-        }
-    );
+        'blacklabelengineering.pythonanywhere.com', '/', {'message': msg});
 
     // response
     String reply = '';
@@ -160,7 +147,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
     final response = await http.get(rUri);
 
     // Successful fetch
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       final hash = json.decode(response.body) as Map<String, dynamic>;
       final rModel = AIReplyModel.fromJSON(hash);
 
@@ -171,41 +158,44 @@ class AIAssistantTabState extends State<AIAssistantTab> {
     }
 
     //Retract the shimmer
-    _animListKey.currentState?.removeItem(_roles.length - 1, (context, animation) => const ChatBubbleShimmer(), duration: const Duration(milliseconds: 0));
+    _animListKey.currentState?.removeItem(
+        _roles.length - 1, (context, animation) => const ChatBubbleShimmer(),
+        duration: const Duration(milliseconds: 0));
     _roles.removeAt(0);
     _messages.removeAt(0);
 
     _roles.insert(0, Role.ai);
     _messages.insert(0, reply);
-    _animListKey.currentState?.insertItem(_messages.length - 1, duration: const Duration(milliseconds: 20));
+    _animListKey.currentState?.insertItem(_messages.length - 1,
+        duration: const Duration(milliseconds: 20));
   }
-
 }
 
 class ChatBubble extends StatelessWidget {
   final String content;
   final bool isIncoming;
 
-  const ChatBubble({super.key, required this.content, required this.isIncoming});
+  const ChatBubble(
+      {super.key, required this.content, required this.isIncoming});
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      direction: Axis.horizontal,
-      alignment: isIncoming ? WrapAlignment.start : WrapAlignment.end,
-      children: [
+        direction: Axis.horizontal,
+        alignment: isIncoming ? WrapAlignment.start : WrapAlignment.end,
+        children: [
           Card(
-            color: !isIncoming ? Colors.blueAccent : Theme.of(context).cardColor,
+            color:
+                !isIncoming ? Colors.blueAccent : Theme.of(context).cardColor,
             child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: Text(
                   content,
                   textAlign: isIncoming ? TextAlign.left : TextAlign.right,
-                )
-            ),
-        ),
-      ]
-    );
+                )),
+          ),
+        ]);
   }
 }
 
@@ -217,8 +207,9 @@ class ChatBubbleShimmer extends StatelessWidget {
     return Shimmer.fromColors(
         baseColor: Colors.black12,
         highlightColor: Colors.white,
-        child: const ChatBubble(content: 'Lorem Ipsum Dolor Amet Sit\nLorem Ipsum Dolor Amet Sit\nLorem Ipsum Dolor Amet Sit', isIncoming: true)
-    );
+        child: const ChatBubble(
+            content:
+                'Lorem Ipsum Dolor Amet Sit\nLorem Ipsum Dolor Amet Sit\nLorem Ipsum Dolor Amet Sit',
+            isIncoming: true));
   }
-
 }

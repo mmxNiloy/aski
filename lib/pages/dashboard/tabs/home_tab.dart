@@ -1,3 +1,4 @@
+import 'package:aski/components/post_container.dart';
 import 'package:aski/components/rich_text_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -47,48 +48,45 @@ class _HomeTabState extends State<HomeTab> {
         future: getPosts(),
         builder:
             (BuildContext context, AsyncSnapshot<List<PostsModel>> snapshot) {
-          List<Widget> children = [];
-          // If we find some data
-          if (snapshot.hasData) {
-            // TODO: Create a list of posts widget here
-            for (var mPost in snapshot.data!) {
-              children.add(Card(
-                  child: Column(
-                    children: [
-                      Text(mPost.title),
-                      Text(mPost.message),
-                      Text(mPost.timestamp.toDate().toString()),
-                      Text(mPost.visibility),
-                      Text(mPost.ownerId)
-                    ],
-              )));
-            }
-
-            return Column(children: children);
+          // Show posts if available
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return PostContainer(model: snapshot.data!.elementAt(index));
+                },
+              ),
+            );
           }
+          // Otherwise return a placeholder (404 page like message) "Posts not found" component(widget)
+
           // On Error
           if (snapshot.hasError) {
             return const Text('Error loading posts');
           }
           // On Loading
-          return const Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: CircularProgressIndicator(),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  'Loading...',
-                  textAlign: TextAlign.center,
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: CircularProgressIndicator(),
                 ),
-              )
-            ],
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'Loading...',
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              ],
+            ),
           );
         },
       ),
     );
   }
-
 }

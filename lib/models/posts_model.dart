@@ -18,7 +18,12 @@ class PostsModel {
   static const String _ownerIdKey = 'owner_id';
   static const String _visibilityKey = 'visibility';
 
-  PostsModel({required this.title, required this.message, required this.ownerId, required this.visibility, required this.timestamp});
+  PostsModel(
+      {required this.title,
+      required this.message,
+      required this.ownerId,
+      required this.visibility,
+      required this.timestamp});
 
   factory PostsModel.fromJson(Map<String, dynamic> json) {
     return PostsModel(
@@ -26,8 +31,7 @@ class PostsModel {
         message: json[_messageKey],
         ownerId: json[_ownerIdKey],
         visibility: json[_visibilityKey],
-        timestamp: json[_timestampKey]
-    );
+        timestamp: json[_timestampKey]);
   }
 
   @override
@@ -47,9 +51,13 @@ class PostsModel {
 
   factory PostsModel.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options
-  ) {
+      SnapshotOptions? options) {
     final data = snapshot.data();
     return PostsModel.fromJson(data!);
+  }
+
+  String getStandardTime() {
+    // TODO: Business logic must be implemented.
+    return '${timestamp.toDate().hour}:${timestamp.toDate().minute}';
   }
 }
