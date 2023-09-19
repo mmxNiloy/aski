@@ -197,6 +197,8 @@ class SignUpFormState extends State<SignUpForm> {
       try {
         final creds = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
+        // creds.user?.sendEmailVerification();
+
         // Structure data
         // TODO: Keep an option for a profile picture,
         //  or save that option for later in dashboard

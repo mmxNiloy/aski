@@ -143,8 +143,8 @@ class _DashboardState extends State<Dashboard> {
           children: [
             ///**WIll call the pages */
             const HomeTab(),
-            buildPage("text"),
-            // const MessageTab(),
+            //buildPage("text"),
+            const MessageTab(),
             // const AIAssistantTab(),
             const AskQuestionTab(),
             buildPage('Notifications')

@@ -25,4 +25,8 @@ class UserModel {
     };
     return userMap;
   }
+
+  String getFullName() {
+    return "$firstName $lastName";
+  }
 }

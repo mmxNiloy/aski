@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:aski/components/typing_indicator.dart';
 import 'package:aski/models/ai_reply_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shimmer/shimmer.dart';
+
+import '../../../components/chat_bubble.dart';
 
 class AIAssistantTab extends StatefulWidget {
   const AIAssistantTab({super.key});
@@ -76,7 +78,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
                               position: animation.drive(Tween<Offset>(
                                   begin: const Offset(0, 1), end: Offset.zero)),
                               child: _roles[index] == Role.loading
-                                  ? const ChatBubbleShimmer()
+                                  ? TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,)
                                   : ChatBubble(
                                       content: _messages[index],
                                       isIncoming: _roles[index] == Role.ai),
@@ -159,8 +161,8 @@ class AIAssistantTabState extends State<AIAssistantTab> {
 
     //Retract the shimmer
     _animListKey.currentState?.removeItem(
-        _roles.length - 1, (context, animation) => const ChatBubbleShimmer(),
-        duration: const Duration(milliseconds: 0));
+        _roles.length - 1, (context, animation) => TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,),
+        duration: const Duration(milliseconds: 2));
     _roles.removeAt(0);
     _messages.removeAt(0);
 
@@ -168,48 +170,5 @@ class AIAssistantTabState extends State<AIAssistantTab> {
     _messages.insert(0, reply);
     _animListKey.currentState?.insertItem(_messages.length - 1,
         duration: const Duration(milliseconds: 20));
-  }
-}
-
-class ChatBubble extends StatelessWidget {
-  final String content;
-  final bool isIncoming;
-
-  const ChatBubble(
-      {super.key, required this.content, required this.isIncoming});
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-        direction: Axis.horizontal,
-        alignment: isIncoming ? WrapAlignment.start : WrapAlignment.end,
-        children: [
-          Card(
-            color:
-                !isIncoming ? Colors.blueAccent : Theme.of(context).cardColor,
-            child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Text(
-                  content,
-                  textAlign: isIncoming ? TextAlign.left : TextAlign.right,
-                )),
-          ),
-        ]);
-  }
-}
-
-class ChatBubbleShimmer extends StatelessWidget {
-  const ChatBubbleShimmer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-        baseColor: Colors.black12,
-        highlightColor: Colors.white,
-        child: const ChatBubble(
-            content:
-                'Lorem Ipsum Dolor Amet Sit\nLorem Ipsum Dolor Amet Sit\nLorem Ipsum Dolor Amet Sit',
-            isIncoming: true));
   }
 }
