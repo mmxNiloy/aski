@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '423183039157',
     projectId: 'aski-8a0b5',
     authDomain: 'aski-8a0b5.firebaseapp.com',
+    databaseURL: 'https://aski-8a0b5-default-rtdb.firebaseio.com',
     storageBucket: 'aski-8a0b5.appspot.com',
     measurementId: 'G-9BDQ68NLJG',
   );
@@ -58,6 +59,7 @@ class DefaultFirebaseOptions {
     appId: '1:423183039157:android:4ca902b905af3d57331cfc',
     messagingSenderId: '423183039157',
     projectId: 'aski-8a0b5',
+    databaseURL: 'https://aski-8a0b5-default-rtdb.firebaseio.com',
     storageBucket: 'aski-8a0b5.appspot.com',
   );
 
@@ -66,6 +68,7 @@ class DefaultFirebaseOptions {
     appId: '1:423183039157:ios:67c182b41f4845cc331cfc',
     messagingSenderId: '423183039157',
     projectId: 'aski-8a0b5',
+    databaseURL: 'https://aski-8a0b5-default-rtdb.firebaseio.com',
     storageBucket: 'aski-8a0b5.appspot.com',
     iosClientId: '423183039157-pi4jp700073n6eks3nnl11m57ad4emcc.apps.googleusercontent.com',
     iosBundleId: 'com.blacklabelengineering.aski',
@@ -76,6 +79,7 @@ class DefaultFirebaseOptions {
     appId: '1:423183039157:ios:0122c52fb0bd49e9331cfc',
     messagingSenderId: '423183039157',
     projectId: 'aski-8a0b5',
+    databaseURL: 'https://aski-8a0b5-default-rtdb.firebaseio.com',
     storageBucket: 'aski-8a0b5.appspot.com',
     iosClientId: '423183039157-dc9lv2088abktl8ijc293a7dopvv4gne.apps.googleusercontent.com',
     iosBundleId: 'com.blacklabelengineering.aski.RunnerTests',

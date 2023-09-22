@@ -202,8 +202,11 @@ class SignUpFormState extends State<SignUpForm> {
         // Structure data
         // TODO: Keep an option for a profile picture,
         //  or save that option for later in dashboard
-        UserModel userModel =
-            UserModel(firstName: firstName, lastName: lastName);
+        UserModel userModel = UserModel(
+            firstName: firstName,
+            lastName: lastName,
+            uid: creds.user!.uid,
+        );
 
         debugPrint(
             'sign_up_form.dart > signup() > Successfully created a new user.');

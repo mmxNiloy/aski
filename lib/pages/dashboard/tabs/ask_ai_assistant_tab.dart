@@ -88,7 +88,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
                       ),
                     ),
 
-                    // Textbox
+                    // Chat Textfield
                     TextField(
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
@@ -131,7 +131,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
     // Encode message to uri
     String msg = Uri.encodeComponent(_messages.first);
 
-    // Release the shimmer
+    // Release the typing indicator
     _roles.insert(0, Role.loading);
     _messages.insert(0, '');
     _animListKey.currentState?.insertItem(_roles.length - 1,
@@ -154,18 +154,19 @@ class AIAssistantTabState extends State<AIAssistantTab> {
       final rModel = AIReplyModel.fromJSON(hash);
 
       // Defaulting to the first choice
-      reply = rModel.choices.first;
+      reply = rModel.getFirstReply();
     } else {
       reply = 'Error parsing message';
     }
 
-    //Retract the shimmer
+    // Retract the typing indicator
     _animListKey.currentState?.removeItem(
         _roles.length - 1, (context, animation) => TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,),
         duration: const Duration(milliseconds: 2));
     _roles.removeAt(0);
     _messages.removeAt(0);
 
+    // Push the ai reply
     _roles.insert(0, Role.ai);
     _messages.insert(0, reply);
     _animListKey.currentState?.insertItem(_messages.length - 1,
