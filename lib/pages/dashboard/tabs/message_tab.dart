@@ -23,20 +23,14 @@ class _MessageTabState extends State<MessageTab> {
     final db = FirebaseFirestore.instance;
 
     final collRef = db.collection('users');
-    final query = collRef.where(
-      FieldPath.documentId,
-      isNotEqualTo: FirebaseAuth.instance.currentUser!.uid
-    );
+    final query = collRef.where(FieldPath.documentId,
+        isNotEqualTo: FirebaseAuth.instance.currentUser!.uid);
 
     final snap = await query.get();
 
     final List<UserModel> mUsers = [];
     for (var mUser in snap.docs) {
-      mUsers.add(
-          UserModel.fromJson(
-              mUser.data()
-          )
-      );
+      mUsers.add(UserModel.fromJson(mUser.data()));
     }
 
     setState(() {
@@ -49,40 +43,42 @@ class _MessageTabState extends State<MessageTab> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FutureBuilder<List<UserModel>>(
-          future: getRegisteredUsers(),
-          builder: buildRegisteredUsersList
-      )
-    );
+        child: FutureBuilder<List<UserModel>>(
+            future: getRegisteredUsers(), builder: buildRegisteredUsersList));
   }
 
-  Widget buildRegisteredUsersList(BuildContext context, AsyncSnapshot<List<UserModel>> snapshot) {
-    if(snapshot.hasError) return const Text('Error loading data');
-    if(snapshot.hasData) {
+  Widget buildRegisteredUsersList(
+      BuildContext context, AsyncSnapshot<List<UserModel>> snapshot) {
+    if (snapshot.hasError) return const Text('Error loading data');
+    if (snapshot.hasData) {
       final data = snapshot.data!;
-      if(data.isEmpty) return const Text('No registered users found');
+      if (data.isEmpty) return const Text('No registered users found');
 
-      return Column(
-        children: [
-          const Text('Registered Users'),
-          ListView.builder(
+      return Column(children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.05,
+        ),
+        const Text(
+          'Registered Users',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.01,
+        ),
+        ListView.builder(
             itemCount: data.length,
             itemBuilder: (context, index) {
               return ProfilePreviewContainer(model: _users[index]);
             },
             scrollDirection: Axis.vertical,
-            shrinkWrap: true
-          ),
-        ]
-      );
+            shrinkWrap: true),
+      ]);
     }
 
     return const Center(
       child: Column(
-        children: [
-          CircularProgressIndicator(),
-          Text('Loading...')
-        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [CircularProgressIndicator(), Text('Loading...')],
       ),
     );
   }
