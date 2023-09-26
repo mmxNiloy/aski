@@ -1,6 +1,7 @@
 import 'package:aski/components/post_container.dart';
 import 'package:aski/components/rich_text_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aski/models/posts_model.dart';
 
@@ -20,9 +21,13 @@ class _HomeTabState extends State<HomeTab> {
     // Read access
     final db = FirebaseFirestore.instance;
     final collRef = db.collection('posts');
-    // Get top 10 recent posts
+    // Get top 10 recent public posts
+    // TODO: Show the private posts in another tab
     // Subject to change
-    final query = collRef.orderBy('timestamp', descending: true).limit(10);
+    final query = collRef
+        .where('visibility', isEqualTo: 'public')
+        .orderBy('timestamp', descending: true)
+        .limit(10);
 
     // Execute query
     final snapshot = await query.get();
@@ -64,6 +69,7 @@ class _HomeTabState extends State<HomeTab> {
 
           // On Error
           if (snapshot.hasError) {
+            debugPrint(snapshot.error.toString());
             return const Text('Error loading posts');
           }
           // On Loading

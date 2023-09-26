@@ -61,7 +61,7 @@ class DirectMessagePageState extends State<DirectMessagePage> {
       ),
       body: Center(
         child: ChatUI(
-            heightFactor: 0.75,
+            heightFactor: 0.5,
             widthFactor: 0.8,
             maxChatBoxLines: 3,
             participants: _participants,
