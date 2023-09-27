@@ -43,9 +43,7 @@ class SignUpFormState extends State<SignUpForm> {
               onChanged: (value) => setState(() => firstName = value),
               validator: validateName,
               decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'First Name'
-              ),
+                  border: OutlineInputBorder(), labelText: 'First Name'),
             ),
           ),
           Padding(
@@ -54,18 +52,16 @@ class SignUpFormState extends State<SignUpForm> {
               onChanged: (value) => setState(() => lastName = value),
               validator: validateName,
               decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Last Name'
-              ),
+                  border: OutlineInputBorder(), labelText: 'Last Name'),
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
             child: TextFormField(
               decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: 'Enter your email',
-                  errorText: emailErrorMessage,
+                border: const OutlineInputBorder(),
+                labelText: 'Enter your email',
+                errorText: emailErrorMessage,
               ),
               validator: validateEmail,
               onChanged: (value) => setState(() => email = value),
@@ -83,15 +79,10 @@ class SignUpFormState extends State<SignUpForm> {
                   errorText: passErrorMessage,
                   suffixIcon: IconButton(
                     icon: Icon(
-                        showPassword ?
-                        Icons.visibility_off :
-                        Icons.visibility
-                    ),
-                    onPressed: () => {
-                      setState(() => showPassword = !showPassword)
-                    },
-                  )
-              ),
+                        showPassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () =>
+                        {setState(() => showPassword = !showPassword)},
+                  )),
               validator: validatePassword,
               initialValue: password,
               onChanged: (value) => setState(() => password = value),
@@ -110,29 +101,26 @@ class SignUpFormState extends State<SignUpForm> {
                   Expanded(
                     child: RichText(
                         text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'I agree with the ',
-                              style: Theme.of(context).textTheme.bodyMedium
+                      children: [
+                        TextSpan(
+                            text: 'I agree with the ',
+                            style: Theme.of(context).textTheme.bodyMedium),
+                        TextSpan(
+                            text: 'Terms and Conditions',
+                            style: const TextStyle(
+                              color: Colors.blueAccent,
+                              decoration: TextDecoration.underline,
                             ),
-                            TextSpan(
-                                text: 'Terms and Conditions',
-                                style: const TextStyle(
-                                  color: Colors.blueAccent,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer: TapGestureRecognizer()..onTap = () {
-                                  debugPrint('TODO: Link to terms and conditions page');
-                                }
-                            )
-                          ],
-
-                        )
-                    ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                debugPrint(
+                                    'TODO: Link to terms and conditions page');
+                              })
+                      ],
+                    )),
                   )
                 ],
-              )
-          ),
+              )),
 
           // Sign-up button
           Padding(
@@ -140,17 +128,13 @@ class SignUpFormState extends State<SignUpForm> {
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.check),
                 style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48)
-                ),
+                    minimumSize: const Size.fromHeight(48)),
                 onPressed: signup,
                 label: const Text(
                   'Sign up',
-                  style: TextStyle(
-                      fontSize: 16
-                  ),
+                  style: TextStyle(fontSize: 16),
                 ),
-              )
-          ),
+              )),
 
           const Padding(padding: EdgeInsets.symmetric(vertical: 8)),
           const Padding(
@@ -164,30 +148,26 @@ class SignUpFormState extends State<SignUpForm> {
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.login),
                 style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48)
-                ),
+                    minimumSize: const Size.fromHeight(48)),
                 onPressed: () => Navigator.pop(context),
                 label: const Text(
                   'Login',
-                  style: TextStyle(
-                      fontSize: 16
-                  ),
+                  style: TextStyle(fontSize: 16),
                 ),
-              )
-          ),
+              )),
         ],
       ),
     );
   }
 
   String? validateName(String? name) {
-    if(RegExp(r'^[a-zA-Z]+$').hasMatch(name!)) return null;
+    if (RegExp(r'^[a-zA-Z]+$').hasMatch(name!)) return null;
 
     return 'Invalid Name';
   }
 
   String? validatePassword(String? password) {
-    if(password == null || password.isEmpty || password.length < 8) {
+    if (password == null || password.isEmpty || password.length < 8) {
       return 'The password is too short';
     }
 
@@ -203,46 +183,57 @@ class SignUpFormState extends State<SignUpForm> {
 
     return 'Invalid email';
   }
-  
+
   Future<void> signup() async {
+    debugPrint(
+        'sign_up_form.dart > signup() > Sign-up button has been clicked.');
     // If T&C are not agreed with
-    if(!isTnCChecked) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(content: Text('You need to agree with our terms and conditions to proceed.'))
-      );
-    } else if(_signupFormKey.currentState!.validate()) {
+    if (!isTnCChecked) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'You need to agree with our terms and conditions to proceed.')));
+    } else if (_signupFormKey.currentState!.validate()) {
       // Try to create a user from the given data.
       try {
         final creds = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
+        // creds.user?.sendEmailVerification();
+
         // Structure data
         // TODO: Keep an option for a profile picture,
         //  or save that option for later in dashboard
-        UserModel userModel = UserModel(firstName: firstName, lastName: lastName);
+        UserModel userModel = UserModel(
+            firstName: firstName,
+            lastName: lastName,
+            uid: creds.user!.uid,
+        );
+
+        debugPrint(
+            'sign_up_form.dart > signup() > Successfully created a new user.');
 
         // Insert data into firestore
         final db = FirebaseFirestore.instance;
-        await db.collection('users')
-          .doc(creds.user!.uid)
-          .set(userModel.toMapObject())
-          .onError((error, stackTrace) => debugPrint('Error inserting data, $error'));
+        await db
+            .collection('users')
+            .doc(creds.user!.uid)
+            .set(userModel.toMapObject())
+            .onError((error, stackTrace) =>
+                debugPrint('Error inserting data, $error'));
 
         debugPrint('Successfully inserted user data');
 
         // Redirect to dashboard, prompt first time login BS
-        if(context.mounted) {
+        if (context.mounted) {
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Dashboard())
-          );
+              MaterialPageRoute(builder: (context) => const Dashboard()));
         }
-      } on FirebaseAuthException catch(err) {
-        if(err.code == 'weak-password') {
+      } on FirebaseAuthException catch (err) {
+        if (err.code == 'weak-password') {
           passErrorMessage = 'The given password is too weak.';
-        } else if(err.code == 'email-already-in-use') {
+        } else if (err.code == 'email-already-in-use') {
           emailErrorMessage = 'An account exists for this email.';
         }
-      } catch(err) {
+      } catch (err) {
         debugPrint(err.toString());
       }
     }
