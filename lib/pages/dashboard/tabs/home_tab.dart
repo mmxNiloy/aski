@@ -1,7 +1,5 @@
 import 'package:aski/components/post_container.dart';
-import 'package:aski/components/rich_text_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aski/models/posts_model.dart';
 
@@ -34,9 +32,12 @@ class _HomeTabState extends State<HomeTab> {
 
     // Bind data
     List<PostsModel> posts = [];
+    print("post owners:");
     for (var docSnap in snapshot.docs) {
       posts.add(PostsModel.fromJson(docSnap.data()));
+      print(posts.last.ownerId);
     }
+    print("End post owners.");
 
     setState(() {
       this.posts = posts;

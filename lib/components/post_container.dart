@@ -1,16 +1,62 @@
 // Contains posts
 // UI element
 // Plan: Scale up to accomodate comments, votes(up and down), and [TODO]
+import 'package:aski/components/chat_bubble_shimmer.dart';
 import 'package:aski/models/posts_model.dart';
 import 'package:flutter/material.dart';
+import 'package:aski/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PostContainer extends StatelessWidget {
+class PostContainer extends StatefulWidget {
   final PostsModel model;
 
   const PostContainer({super.key, required this.model});
 
   @override
+  State<PostContainer> createState() => _PostContainerState();
+}
+
+class _PostContainerState extends State<PostContainer> {
+  late UserModel postOwner;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      postOwner = UserModel(firstName: "abc", lastName: "def", uid: "1");
+    });
+  }
+
+  Future<UserModel> getOwnerInfo() async {
+    final db = FirebaseFirestore.instance;
+    final snapshot =
+        await db.collection('users').doc(widget.model.ownerId).get();
+    setState(() {
+      postOwner = UserModel.fromJson(snapshot.data()!);
+    });
+    return postOwner;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return FutureBuilder<UserModel>(
+        future: getOwnerInfo(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return drawPostCard();
+          }
+
+          if (snapshot.hasError) {
+            print("post container error!");
+            print(snapshot.error);
+            return const Text("Error Loading Post!");
+          }
+
+          return const ChatBubbleShimmer();
+        });
+  }
+
+  Widget drawPostCard() {
     return Card(
       color: Theme.of(context).secondaryHeaderColor,
       margin: const EdgeInsets.all(8),
@@ -36,14 +82,14 @@ class PostContainer extends StatelessWidget {
                   children: [
                     // username
                     Text(
-                      model.ownerId,
+                      postOwner.getFullName(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
                     ),
                     Text(
-                      'Posted on ${model.getStandardTime()}',
+                      'Posted on ${widget.model.getStandardTime()}',
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 10,
@@ -58,7 +104,7 @@ class PostContainer extends StatelessWidget {
             ),
             //* Title of a Card
             Text(
-              model.title,
+              widget.model.title,
               maxLines: 3,
               style: const TextStyle(
                 fontSize: 18,
@@ -71,7 +117,7 @@ class PostContainer extends StatelessWidget {
             ),
             //* Post is here
             Text(
-              model.message,
+              widget.model.message,
               maxLines: 3,
               style: const TextStyle(overflow: TextOverflow.fade),
             ),
@@ -96,7 +142,7 @@ class PostContainer extends StatelessWidget {
   }
 
   IconData? getVisibilityIcon() {
-    switch (model.visibility) {
+    switch (widget.model.visibility) {
       case PostVisibility.POST_PUBLIC:
         return Icons.public;
       case PostVisibility.POST_PRIVATE:

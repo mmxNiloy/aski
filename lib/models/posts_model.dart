@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class PostVisibility {
   static const String POST_PUBLIC = 'public';
@@ -57,7 +58,8 @@ class PostsModel {
   }
 
   String getStandardTime() {
+    final dateFormat = new DateFormat("dd-MM-yyyy hh:mm a");
     // TODO: Business logic must be implemented.
-    return '${timestamp.toDate().hour}:${timestamp.toDate().minute}';
+    return dateFormat.format(timestamp.toDate());
   }
 }
