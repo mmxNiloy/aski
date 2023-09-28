@@ -333,8 +333,6 @@ class LoginFormState extends State<LoginForm> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const Dashboard()));
         }
-        setState(() { isLoading = false; });
-        return;
       } on FirebaseAuthException catch(err) {
         if(err.code == 'user-not-found') {
           message = 'There is no account for this email, $email';
@@ -352,5 +350,9 @@ class LoginFormState extends State<LoginForm> {
         isLoading = false;
       });
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 }
