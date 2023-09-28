@@ -345,10 +345,6 @@ class LoginFormState extends State<LoginForm> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('message: $message')));
       }
-
-      setState(() {
-        isLoading = false;
-      });
     }
 
     setState(() {
