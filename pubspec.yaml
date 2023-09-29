@@ -50,7 +50,6 @@ dependencies:
   platform: ^3.1.2
   quiver: ^3.2.1
   url_launcher: ^6.1.14
-  flutter_quill_extensions: ^0.4.1
   file_picker: ^5.5.0
   filesystem_picker: ^3.1.0
   html_editor_enhanced: ^2.5.1
