@@ -133,7 +133,10 @@ class _AskQuestionTabState extends State<AskQuestionTab> {
           ownerId: FirebaseAuth.instance.currentUser!.uid,
           visibility: isPublic
               ? PostVisibility.POST_PUBLIC
-              : PostVisibility.POST_PRIVATE);
+              : PostVisibility.POST_PRIVATE,
+          upvotes: 0,
+          downvotes: 0
+      );
 
       debugPrint('Data found, ${mPost.toString()}');
 

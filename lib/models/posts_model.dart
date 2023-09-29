@@ -12,19 +12,27 @@ class PostsModel {
   final Timestamp timestamp;
   final String ownerId;
   final String visibility;
+  final int upvotes;
+  final int downvotes;
+  late String? postID;
 
   static const String _titleKey = 'title';
   static const String _messageKey = 'message';
   static const String _timestampKey = 'timestamp';
   static const String _ownerIdKey = 'owner_id';
   static const String _visibilityKey = 'visibility';
+  static const String _upvotesKey = 'upvotes';
+  static const String _downvotesKey = 'downvotes';
 
   PostsModel(
       {required this.title,
       required this.message,
       required this.ownerId,
       required this.visibility,
-      required this.timestamp});
+      required this.timestamp,
+      required this.upvotes,
+      required this.downvotes,
+      this.postID});
 
   factory PostsModel.fromJson(Map<String, dynamic> json) {
     return PostsModel(
@@ -32,7 +40,10 @@ class PostsModel {
         message: json[_messageKey],
         ownerId: json[_ownerIdKey],
         visibility: json[_visibilityKey],
-        timestamp: json[_timestampKey]);
+        timestamp: json[_timestampKey],
+        upvotes: json[_upvotesKey],
+        downvotes: json[_downvotesKey]
+    );
   }
 
   @override
@@ -46,7 +57,9 @@ class PostsModel {
       _messageKey: message,
       _timestampKey: timestamp,
       _ownerIdKey: ownerId,
-      _visibilityKey: visibility
+      _visibilityKey: visibility,
+      _upvotesKey: upvotes,
+      _downvotesKey: downvotes
     };
   }
 
@@ -58,7 +71,7 @@ class PostsModel {
   }
 
   String getStandardTime() {
-    final dateFormat = new DateFormat("dd-MM-yyyy hh:mm a");
+    final dateFormat = DateFormat("dd-MM-yyyy hh:mm a");
     // TODO: Business logic must be implemented.
     return dateFormat.format(timestamp.toDate());
   }
