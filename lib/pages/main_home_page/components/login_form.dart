@@ -311,7 +311,7 @@ class LoginFormState extends State<LoginForm> {
 
     if (_loginFormKey.currentState!.validate()) {
       // Try logging in with email and password
-      String message = '';
+      String message = 'Hey man! try again lah!';
       try {
         await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
