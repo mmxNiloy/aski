@@ -23,207 +23,198 @@ class LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 1,
-      width: MediaQuery.of(context).size.width * 1,
-      child: Form(
-          key: _loginFormKey,
-          child: FractionallySizedBox(
-            widthFactor: 1,
-            child: Column(
-              children: <Widget>[
-                const Spacer(),
-                // Title
-                const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      fit: FlexFit.loose,
-                      flex: 1,
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        child: Text(
-                          'Welcome to',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 32,
-                          ),
+    return Form(
+        key: _loginFormKey,
+        child: FractionallySizedBox(
+          widthFactor: 1,
+          child: Column(
+            children: <Widget>[
+              // Title
+              const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 1,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      child: Text(
+                        'Welcome to',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
                         ),
                       ),
                     ),
-                    // Placeholder Text Logo
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                        child: Text(
-                          'ASKi',
-                          style: TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                    ),
-                    // Issue: Apply appropriate margin, padding, and size of the logo here
-                    // Flexible(
-                    //   fit: FlexFit.loose,
-                    //   flex: 1,
-                    //   child: Image(
-                    //     image: AssetImage('images/logo_dark.png'),
-                    //     height: 300,
-                    //     width: 300,
-                    //     fit: BoxFit.cover,
-                    //   ),
-                    // )
-                  ],
-                ),
-                const Spacer(),
-                // Email text field
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Enter your email'),
-                    validator: validateEmail,
-                    onChanged: (value) => setState(() => email = value),
-                    initialValue: email,
                   ),
+                  // Placeholder Text Logo
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                      child: Text(
+                        'ASKi',
+                        style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  // Issue: Apply appropriate margin, padding, and size of the logo here
+                  // Flexible(
+                  //   fit: FlexFit.loose,
+                  //   flex: 1,
+                  //   child: Image(
+                  //     image: AssetImage('images/logo_dark.png'),
+                  //     height: 300,
+                  //     width: 300,
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // )
+                ],
+              ),
+
+              // Email text field
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter your email'),
+                  validator: validateEmail,
+                  onChanged: (value) => setState(() => email = value),
+                  initialValue: email,
                 ),
-                // Password text field
-                Padding(
+              ),
+              // Password text field
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                child: TextFormField(
+                  obscureText: !showPassword,
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Enter your password',
+                      suffixIcon: IconButton(
+                        icon: Icon(showPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () =>
+                            {setState(() => showPassword = !showPassword)},
+                      )),
+                  validator: (value) => (value == null || value.length < 8)
+                      ? 'The password is too short'
+                      : null,
+                  initialValue: password,
+                  onChanged: (value) => setState(() => password = value),
+                ),
+              ),
+              // Login button
+              Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  child: TextFormField(
-                    obscureText: !showPassword,
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: 'Enter your password',
-                        suffixIcon: IconButton(
-                          icon: Icon(showPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility),
-                          onPressed: () =>
-                              {setState(() => showPassword = !showPassword)},
-                        )),
-                    validator: (value) => (value == null || value.length < 8)
-                        ? 'The password is too short'
-                        : null,
-                    initialValue: password,
-                    onChanged: (value) => setState(() => password = value),
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.login),
+                    style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48)),
+                    onPressed: isLoading ? null : login,
+                    label: const Text(
+                      'Login',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  )),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.fromLTRB(32, 0, 16, 0),
+                    child: Divider(color: Theme.of(context).hintColor),
+                  )),
+                  const Text(
+                    'Login using',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-
-                // Login button
-                Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.login),
-                      style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48)),
-                      onPressed: isLoading ? null : login,
-                      label: const Text(
-                        'Login',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    )),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.fromLTRB(32, 0, 16, 0),
-                      child: Divider(color: Theme.of(context).hintColor),
-                    )),
-                    const Text(
-                      'Login using',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 32, 0),
-                      child: Divider(color: Theme.of(context).hintColor),
-                    )),
-                  ],
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                ),
-                // Login method list
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    // Facebook
-                    IconButton(
-                        onPressed: () => loginUsingFacebook,
-                        icon: Image.network(
-                          'https://img.icons8.com/color/48/facebook-new.png',
-                          height: 48,
-                          width: 48,
-                          errorBuilder: (context, error, stackTrace) =>
-                              drawErrorIcon(context),
-                        )),
-                    // Google
-                    IconButton(
-                        onPressed: signInWithGoogle,
-                        icon: Image.network(
-                          'https://img.icons8.com/color/48/google-logo.png',
-                          height: 48,
-                          width: 48,
-                          errorBuilder: (context, error, stackTrace) =>
-                              drawErrorIcon(context),
-                        )),
-                    // Twitter X
-                    IconButton(
-                        onPressed: () => loginUsingTwitter(),
-                        icon: Image.network(
-                          'https://img.icons8.com/color/48/twitter--v1.png',
-                          height: 48,
-                          width: 48,
-                          errorBuilder: (context, error, stackTrace) =>
-                              drawErrorIcon(context),
-                        )),
-                  ],
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.fromLTRB(32, 0, 16, 0),
-                      child: Divider(color: Theme.of(context).hintColor),
-                    )),
-                    const Text(
-                      'Don\'t have an account?',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 32, 0),
-                      child: Divider(color: Theme.of(context).hintColor),
-                    )),
-                  ],
-                ),
-                Padding(
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 32, 0),
+                    child: Divider(color: Theme.of(context).hintColor),
+                  )),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+              ),
+              // Login method list
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  // Facebook
+                  IconButton(
+                      onPressed: () => loginUsingFacebook,
+                      icon: Image.network(
+                        'https://img.icons8.com/color/48/facebook-new.png',
+                        height: 48,
+                        width: 48,
+                        errorBuilder: (context, error, stackTrace) =>
+                            drawErrorIcon(context),
+                      )),
+                  // Google
+                  IconButton(
+                      onPressed: signInWithGoogle,
+                      icon: Image.network(
+                        'https://img.icons8.com/color/48/google-logo.png',
+                        height: 48,
+                        width: 48,
+                        errorBuilder: (context, error, stackTrace) =>
+                            drawErrorIcon(context),
+                      )),
+                  // Twitter X
+                  IconButton(
+                      onPressed: () => loginUsingTwitter(),
+                      icon: Image.network(
+                        'https://img.icons8.com/color/48/twitter--v1.png',
+                        height: 48,
+                        width: 48,
+                        errorBuilder: (context, error, stackTrace) =>
+                            drawErrorIcon(context),
+                      )),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.fromLTRB(32, 0, 16, 0),
+                    child: Divider(color: Theme.of(context).hintColor),
+                  )),
+                  const Text(
+                    'Don\'t have an account?',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 32, 0),
+                    child: Divider(color: Theme.of(context).hintColor),
+                  )),
+                ],
+              ),
+              Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   child: OutlinedButton.icon(
@@ -236,13 +227,10 @@ class LoginFormState extends State<LoginForm> {
                       'Sign Up',
                       style: TextStyle(fontSize: 16),
                     ),
-                  ),
-                ),
-                const Spacer(),
-              ],
-            ),
-          )),
-    );
+                  )),
+            ],
+          ),
+        ));
   }
 
   String? validateEmail(String? email) {
@@ -320,9 +308,7 @@ class LoginFormState extends State<LoginForm> {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const Dashboard()));
         }
-        setState(() {
-          isLoading = false;
-        });
+
         return;
       } on FirebaseAuthException catch (err) {
         if (err.code == 'user-not-found') {
@@ -336,10 +322,10 @@ class LoginFormState extends State<LoginForm> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('message: $message')));
       }
-
-      setState(() {
-        isLoading = false;
-      });
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 }

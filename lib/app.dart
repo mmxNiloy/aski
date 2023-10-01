@@ -1,4 +1,6 @@
+import 'package:aski/pages/dashboard/dashboard.dart';
 import 'package:aski/pages/main_home_page/main_home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
@@ -15,6 +17,19 @@ class App extends StatelessWidget {
             useMaterial3: true),
         darkTheme: ThemeData.dark(useMaterial3: true),
         themeMode: ThemeMode.system,
-        home: const MainHomePage());
+        home: drawLandingPage());
+  }
+
+  Widget drawLandingPage() {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if(snapshot.hasData) {
+          return const Dashboard();
+        }
+
+        return const MainHomePage();
+      },
+    );
   }
 }
