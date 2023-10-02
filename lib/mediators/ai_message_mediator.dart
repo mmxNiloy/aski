@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aski/constants/server_response_constants.dart';
 import 'package:aski/models/ai_reply_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
@@ -11,9 +12,9 @@ class AIMessageMediator {
     
     // request uri
     final rUri = Uri.http(
-        'blacklabelengineering.pythonanywhere.com',   // Host
-        '/',                                          // Route
-        {'message': msg}                              // Query params, Map<String, dynamic>
+        APIInfo.host,   // Host
+        APIInfo.messageAIRoute,                                          // Route
+        {APIInfo.messageParamKey: msg}                              // Query params, Map<String, dynamic>
     );
 
     final response = await http.get(rUri);

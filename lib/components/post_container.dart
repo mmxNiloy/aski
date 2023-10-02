@@ -3,8 +3,8 @@
 // Plan: Scale up to accomodate comments, votes(up and down), and [TODO]
 // TODO: Take care of the memory leaks dart is freaking out about.
 // TODO: Resize the container, blur out excess content, on comment button tap navigate to a page with full post details
-import 'package:aski/components/chat_bubble_shimmer.dart';
 import 'package:aski/components/post_container_shimmer.dart';
+import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/posts_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,74 +24,63 @@ class PostContainer extends StatefulWidget {
 class _PostContainerState extends State<PostContainer> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late UserModel postOwner;
-  bool isMenuOpen = false;
   VoteType postVote = VoteType.empty;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> _voteCountStream;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> _userVoteObserverStream;
-  int upvoteCount = 0;
-  int downvoteCount = 0;
 
   @override
   void initState() {
     super.initState();
 
     _voteCountStream = getPostRef().snapshots();
-    _userVoteObserverStream = getPostRef()
-        .collection('voters')
-        .doc(uid)
-        .snapshots();
+    _userVoteObserverStream =
+        getPostRef().collection(PostVotersSubCollection.name).doc(uid).snapshots();
 
     // Manage states for update and stuff
     subscribeToUserVoteChange();
 
     setState(() {
-      postOwner = UserModel(firstName: "abc", lastName: "def", uid: "1");
+      postOwner = UserModel(firstName: "", lastName: "", uid: "");
     });
   }
 
   void subscribeToUserVoteChange() {
-    getPostRef()
-        .collection('voters')
-        .doc(uid)
-        .snapshots().listen((event) {
-          if(!event.exists) {
-            getPostRef()
-                .collection('voters')
-                .doc(uid)
-                .set({'vote_type': 'empty'});
-          } else {
-            switch(event.data()!['vote_type']) {
-              case 'upvote':
-                if(mounted) {
-                  setState(() {
-                    postVote = VoteType.upvote;
-                  });
-                }
-
-                break;
-              case 'downvote':
-                if(mounted) {
-                  setState(() {
-                    postVote = VoteType.downvote;
-                  });
-                }
-                break;
-              default:
-                if(mounted) {
-                  setState(() {
-                    postVote = VoteType.empty;
-                  });
-                }
-                break;
+    getPostRef().collection(PostVotersSubCollection.name).doc(uid).snapshots().listen((event) {
+      if (!event.exists) {
+        getPostRef().collection(PostVotersSubCollection.name).doc(uid).set({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeEmpty});
+      } else {
+        switch (event.data()![PostVotersSubCollection.voteTypeKey]) {
+          case PostVotersSubCollection.voteTypeUpVote:
+            if (mounted) {
+              setState(() {
+                postVote = VoteType.upvote;
+              });
             }
-          }
+
+            break;
+          case PostVotersSubCollection.voteTypeDownVote:
+            if (mounted) {
+              setState(() {
+                postVote = VoteType.downvote;
+              });
+            }
+            break;
+          default:
+            if (mounted) {
+              setState(() {
+                postVote = VoteType.empty;
+              });
+            }
+            break;
+        }
+      }
     }, onError: (error) => debugPrint(error));
   }
 
   Future<UserModel> getOwnerInfo() async {
     final db = FirebaseFirestore.instance;
     final snapshot =
-        await db.collection('users').doc(widget.model.ownerId).get();
+        await db.collection(UsersCollection.name).doc(widget.model.ownerId).get();
     setState(() {
       postOwner = UserModel.fromJson(snapshot.data()!);
     });
@@ -149,72 +138,69 @@ class _PostContainerState extends State<PostContainer> {
     // Menu bar for reporting the post
 
     return Row(
-        children: [
-          // Profile Pic Circle Area
-          // Grab profile pic from gmail, fb or other platforms
-          // Grab from database as well if exists
-          // Otherwise placeholder image
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-            // Profile pic
-            child: Icon(
-              Icons.circle_rounded,
-              size: 40,
-            ),
+      children: [
+        // Profile Pic Circle Area
+        // Grab profile pic from gmail, fb or other platforms
+        // Grab from database as well if exists
+        // Otherwise placeholder image
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+          // Profile pic
+          child: Icon(
+            Icons.circle_rounded,
+            size: 40,
           ),
+        ),
 
-          // User Name and post timestamp
-          Expanded(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // username
-                Text(
-                  postOwner.getFullName(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+        // User Name and post timestamp
+        Expanded(
+          flex: 1,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // username
+              Text(
+                postOwner.getFullName(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
+              ),
 
-                Row(
-                  children: [
-                    Text(
-                      'Posted on ${widget.model.getStandardTime()}',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10,
-                      ),
+              Row(
+                children: [
+                  Text(
+                    'Posted on ${widget.model.getStandardTime()}',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
                     ),
-
-                    const SizedBox(width: 8,),
-
-                    Icon(getVisibilityIcon(), size: 10),
-                  ],
-                ),
-                // timestamp
-
-              ],
-            ),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Icon(getVisibilityIcon(), size: 10),
+                ],
+              ),
+              // timestamp
+            ],
           ),
+        ),
 
-          // Options for the post
-          // For example, report the post
-          PopupMenuButton(
-              itemBuilder: (context) => [
-                // Report button
-                PopupMenuItem(
-                    child: ListTile(
-                      title: const Text('Report'),
-                      leading: const Icon(Icons.report_problem),
-                      onTap: reportPost,
-                    )
-                )
-              ]
-          ),
-        ],
-      );
+        // Options for the post
+        // For example, report the post
+        PopupMenuButton(
+            itemBuilder: (context) => [
+                  // Report button
+                  PopupMenuItem(
+                      child: ListTile(
+                    title: const Text('Report'),
+                    leading: const Icon(Icons.report_problem),
+                    onTap: reportPost,
+                  ))
+                ]),
+      ],
+    );
   }
 
   Widget drawCardContent() {
@@ -244,9 +230,7 @@ class _PostContainerState extends State<PostContainer> {
         // TODO: Constraint the box to facilitate a few lines as preview
         HtmlWidget(
           widget.model.message,
-          textStyle: const TextStyle(
-              overflow: TextOverflow.fade
-          ),
+          textStyle: const TextStyle(overflow: TextOverflow.fade),
         ),
       ],
     );
@@ -264,7 +248,8 @@ class _PostContainerState extends State<PostContainer> {
           child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
             stream: _voteCountStream,
             builder: (context, snapshot) {
-              if(snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
+              if (snapshot.hasError ||
+                  snapshot.connectionState == ConnectionState.waiting) {
                 return const ListTile(
                   leading: Icon(Icons.arrow_upward),
                   title: Text(''),
@@ -273,9 +258,9 @@ class _PostContainerState extends State<PostContainer> {
               }
 
               return ListTile(
-                leading: drawUpvoteIcon(),
-                title: Text(snapshot.data!.data()!['upvotes'].toString()),
-                onTap: upvotePost,
+                leading: drawUpVoteIcon(),
+                title: Text(snapshot.data!.data()![PostsCollection.upVotesKey].toString()),
+                onTap: upVotePost,
               );
             },
           ),
@@ -287,7 +272,8 @@ class _PostContainerState extends State<PostContainer> {
           child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
             stream: _voteCountStream,
             builder: (context, snapshot) {
-              if(snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
+              if (snapshot.hasError ||
+                  snapshot.connectionState == ConnectionState.waiting) {
                 return const ListTile(
                   leading: Icon(Icons.arrow_upward),
                   title: Text(''),
@@ -296,9 +282,9 @@ class _PostContainerState extends State<PostContainer> {
               }
 
               return ListTile(
-                leading: drawDownvoteIcon(),
-                title: Text(snapshot.data!.data()!['downvotes'].toString()),
-                onTap: downvotePost,
+                leading: drawDownVoteIcon(),
+                title: Text(snapshot.data!.data()![PostsCollection.downVotesKey].toString()),
+                onTap: downVotePost,
               );
             },
           ),
@@ -313,7 +299,10 @@ class _PostContainerState extends State<PostContainer> {
           flex: 2,
           child: ListTile(
             trailing: const Icon(Icons.comment),
-            title: const Text('Comment', textAlign: TextAlign.end,),
+            title: const Text(
+              'Comment',
+              textAlign: TextAlign.end,
+            ),
             onTap: viewPostDetails,
           ),
         ),
@@ -324,8 +313,7 @@ class _PostContainerState extends State<PostContainer> {
   DocumentReference<Map<String, dynamic>> getPostRef() {
     final db = FirebaseFirestore.instance;
 
-    final postRef = db.collection('posts')
-        .doc(widget.model.postID);
+    final postRef = db.collection(PostsCollection.name).doc(widget.model.postID);
     return postRef;
   }
 
@@ -340,34 +328,31 @@ class _PostContainerState extends State<PostContainer> {
     }
   }
 
-  Widget drawUpvoteIcon() {
+  Widget drawUpVoteIcon() {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: _userVoteObserverStream,
       builder: (context, snapshot) {
-        if(
-          snapshot.hasError ||
-          snapshot.connectionState == ConnectionState.waiting ||
-              snapshot.data!.data()!['vote_type'] != 'upvote'
-        ) {
+        if (snapshot.hasError ||
+            snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data!.data()![PostVotersSubCollection.voteTypeKey] != PostVotersSubCollection.voteTypeUpVote) {
           return const Icon(Icons.arrow_upward);
         }
 
         return const Icon(
-            Icons.arrow_upward,
-            color: Colors.blue,
+          Icons.arrow_upward,
+          color: Colors.blue,
         );
       },
     );
   }
-  Widget drawDownvoteIcon() {
+
+  Widget drawDownVoteIcon() {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: _userVoteObserverStream,
       builder: (context, snapshot) {
-        if(
-        snapshot.hasError ||
+        if (snapshot.hasError ||
             snapshot.connectionState == ConnectionState.waiting ||
-            snapshot.data!.data()!['vote_type'] != 'downvote'
-        ) {
+            snapshot.data!.data()![PostVotersSubCollection.voteTypeKey] != PostVotersSubCollection.voteTypeDownVote) {
           return const Icon(Icons.arrow_downward);
         }
 
@@ -383,55 +368,50 @@ class _PostContainerState extends State<PostContainer> {
     // TODO: Send a report to the database admin
   }
 
-  Future<void> upvotePost() async {
-    if(postVote == VoteType.empty) {
-      getPostRef().update({'upvotes': FieldValue.increment(1)});
+  void upVotePost() {
+    if (postVote == VoteType.empty) {
+      getPostRef().update({PostsCollection.upVotesKey: FieldValue.increment(1)});
 
       getPostRef()
-          .collection('voters')
+          .collection(PostVotersSubCollection.name)
           .doc(uid)
-          .update({'vote_type': 'upvote'});
-    } else if(postVote == VoteType.upvote) {
-      getPostRef().update({'upvotes': FieldValue.increment(-1)});
+          .update({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeUpVote});
+    } else if (postVote == VoteType.upvote) {
+      getPostRef().update({PostsCollection.upVotesKey: FieldValue.increment(-1)});
 
-      getPostRef()
-          .collection('voters')
-          .doc(uid)
-          .update({'vote_type': 'empty'});
+      getPostRef().collection(PostVotersSubCollection.name).doc(uid).update({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeEmpty});
     } else {
-      getPostRef().update({'upvotes': FieldValue.increment(1)});
-      getPostRef().update({'downvotes': FieldValue.increment(-1)});
+      getPostRef().update({PostsCollection.upVotesKey: FieldValue.increment(1)});
+      getPostRef().update({PostsCollection.downVotesKey: FieldValue.increment(-1)});
 
       getPostRef()
-          .collection('voters')
+          .collection(PostVotersSubCollection.name)
           .doc(uid)
-          .update({'vote_type': 'upvote'});
+          .update({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeUpVote});
     }
   }
 
-  void downvotePost() {
-    if(postVote == VoteType.empty) {
-      getPostRef().update({'downvotes': FieldValue.increment(1)});
+  void downVotePost() {
+
+    if (postVote == VoteType.empty) {
+      getPostRef().update({PostsCollection.downVotesKey: FieldValue.increment(1)});
 
       getPostRef()
-          .collection('voters')
+          .collection(PostVotersSubCollection.name)
           .doc(uid)
-          .update({'vote_type': 'downvote'});
-    } else if(postVote == VoteType.downvote) {
-      getPostRef().update({'downvotes': FieldValue.increment(-1)});
+          .update({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeDownVote});
+    } else if (postVote == VoteType.downvote) {
+      getPostRef().update({PostsCollection.downVotesKey: FieldValue.increment(-1)});
 
-      getPostRef()
-          .collection('voters')
-          .doc(uid)
-          .update({'vote_type': 'empty'});
+      getPostRef().collection(PostVotersSubCollection.name).doc(uid).update({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeEmpty});
     } else {
-      getPostRef().update({'upvotes': FieldValue.increment(-1)});
-      getPostRef().update({'downvotes': FieldValue.increment(1)});
+      getPostRef().update({PostsCollection.upVotesKey: FieldValue.increment(-1)});
+      getPostRef().update({PostsCollection.downVotesKey: FieldValue.increment(1)});
 
       getPostRef()
-          .collection('voters')
+          .collection(PostVotersSubCollection.name)
           .doc(uid)
-          .update({'vote_type': 'downvote'});
+          .update({PostVotersSubCollection.voteTypeKey: PostVotersSubCollection.voteTypeDownVote});
     }
   }
 
@@ -440,8 +420,4 @@ class _PostContainerState extends State<PostContainer> {
   }
 }
 
-enum VoteType {
-  empty,
-  upvote,
-  downvote
-}
+enum VoteType { empty, upvote, downvote }

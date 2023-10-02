@@ -1,4 +1,5 @@
 import 'package:aski/components/rich_text_editor.dart';
+import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/posts_model.dart';
 import 'package:aski/pages/dashboard/tabs/ask_ai_assistant_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -143,7 +144,7 @@ class _AskQuestionTabState extends State<AskQuestionTab> {
       final db = FirebaseFirestore.instance;
 
       // Prep for upload
-      final docRef = db.collection('posts').withConverter(
+      final docRef = db.collection(PostsCollection.name).withConverter(
           fromFirestore: PostsModel.fromFirestore,
           toFirestore: (PostsModel post, options) => post.toFirestore());
 

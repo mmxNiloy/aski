@@ -1,13 +1,10 @@
+import 'package:aski/constants/database_constants.dart';
+
 class UserModel {
   final String firstName;
   final String lastName;
   final String? profilePicUri;
   final String uid;
-
-  static const String _fNameKey = 'first_name';
-  static const String _lNameKey = 'last_name';
-  static const String _pPicUriKey = 'profile_pic_uri';
-  static const String _uidKey = 'uid';
 
   UserModel({
     required this.firstName,
@@ -18,19 +15,19 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      firstName: json[_fNameKey],
-      lastName: json[_lNameKey],
-      profilePicUri: json[_pPicUriKey],
-      uid: json[_uidKey]
+      firstName: json[UsersCollection.fNameKey],
+      lastName: json[UsersCollection.lNameKey],
+      profilePicUri: json[UsersCollection.pPicUriKey],
+      uid: json[UsersCollection.uidKey]
     );
   }
 
   Map<String, dynamic> toMapObject() {
     final userMap = <String, dynamic>{
-      _fNameKey: firstName,
-      _lNameKey: lastName,
-      _pPicUriKey: profilePicUri,
-      _uidKey: uid,
+      UsersCollection.fNameKey: firstName,
+      UsersCollection.lNameKey: lastName,
+      UsersCollection.pPicUriKey: profilePicUri,
+      UsersCollection.uidKey: uid,
     };
     return userMap;
   }

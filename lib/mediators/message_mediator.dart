@@ -1,19 +1,19 @@
 import 'dart:convert';
 
+import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/rtdb_message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
 
 class MessageMediator {
   static Future<String> findOrGenerateChatID(String member1, String member2) async {
     String chatID = '';
 
     final db = FirebaseFirestore.instance;
-    final collRef = db.collection('connections');
+    final collRef = db.collection(ConnectionsCollection.name);
     final query = collRef
-        .where('member1', isEqualTo: member1)
-        .where('member2', isEqualTo: member2);
+        .where(ConnectionsCollection.member1Key, isEqualTo: member1)
+        .where(ConnectionsCollection.member2Key, isEqualTo: member2);
 
     final response = await query.get();
     if(response.docs.isNotEmpty && response.docs.first.exists) {
@@ -21,13 +21,13 @@ class MessageMediator {
     } else {
       // Member connection data
       Map<String, String> members = {
-        'member1': member1,
-        'member2': member2,
+        MembersRTDBObject.member1Key: member1,
+        MembersRTDBObject.member2Key: member2,
       };
 
       // Create a new chat id in firebase rtdb
       final rtdb = FirebaseDatabase.instance;
-      final membersRef = rtdb.ref('/members');
+      final membersRef = rtdb.ref('/${MembersRTDBObject.name}');
       final itemRef = membersRef.push();
 
       chatID = itemRef.key!;
@@ -51,14 +51,14 @@ class MessageMediator {
 
     // Notify the RTDB
     FirebaseDatabase database = FirebaseDatabase.instance;
-    final mChatRef = database.ref('messages/$chatID');
+    final mChatRef = database.ref('${MessagesRTDBObject.name}/$chatID');
 
     int ts = Timestamp.now().millisecondsSinceEpoch;
     final msgRef = mChatRef.push();
     await msgRef.set(messageModel.toJson());
 
     // Update the metadata in the database
-    final chatRef = database.ref('/chats/$chatID');
+    final chatRef = database.ref('/${ChatsRTDBObject.name}/$chatID');
     await chatRef.set(messageModel.toMetadata());
 
     return;
@@ -68,10 +68,10 @@ class MessageMediator {
     List<RTDBMessageModel> messages = [];
 
     FirebaseDatabase database = FirebaseDatabase.instance;
-    final msgRef = database.ref('messages/');
+    final msgRef = database.ref('${MessagesRTDBObject.name}/');
     final chat = msgRef.child(chatID);
     final query = chat
-        .orderByChild('timestamp')
+        .orderByChild(MessagesRTDBObject.timestampKey)
         .limitToLast(limit);
 
     final snapshot = await query.get();
@@ -85,18 +85,20 @@ class MessageMediator {
     return messages;
   }
 
-  static Future<void> listenToChatChanges(
+  static void listenToChatChanges(
     String chatID,
-    void Function(RTDBMessageModel) handleDataChange) async {
-    DatabaseReference chatRef = FirebaseDatabase.instance.ref('messages/$chatID');
+    void Function(RTDBMessageModel) handleDataChange) {
+    DatabaseReference chatRef = FirebaseDatabase.instance.ref('${MessagesRTDBObject.name}/$chatID');
     // get the latest message ref
     final query = chatRef
-      .orderByChild('timestamp')
+      .orderByChild(MessagesRTDBObject.timestampKey)
       .limitToLast(1);
     query.onValue.listen((event) {
+      if(!event.snapshot.exists) return;
+
       final data = event.snapshot.value;
 
-      final m = json.decode(json.encode(data));
+      final m = json.decode(json.encode(data)) as Map<String, dynamic>;
       late RTDBMessageModel newMessage;
       m.forEach((key, value) {
         newMessage = RTDBMessageModel.fromJson(value);

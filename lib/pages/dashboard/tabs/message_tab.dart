@@ -1,4 +1,5 @@
 import 'package:aski/components/profile_preview_container.dart';
+import 'package:aski/constants/database_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,17 +13,13 @@ class MessageTab extends StatefulWidget {
   State<MessageTab> createState() => _MessageTabState();
 }
 
-/*
-a6ScvTWpcThD56gA3zSfDuD9oW63
-*/
-
 class _MessageTabState extends State<MessageTab> {
   late List<UserModel> _users;
 
   Future<List<UserModel>> getRegisteredUsers() async {
     final db = FirebaseFirestore.instance;
 
-    final collRef = db.collection('users');
+    final collRef = db.collection(UsersCollection.name);
     final query = collRef.where(FieldPath.documentId,
         isNotEqualTo: FirebaseAuth.instance.currentUser!.uid);
 

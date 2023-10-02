@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:aski/components/typing_indicator.dart';
+import 'package:aski/constants/server_response_constants.dart';
 import 'package:aski/models/ai_reply_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -141,7 +142,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
 
     // request uri
     final rUri = Uri.http(
-        'blacklabelengineering.pythonanywhere.com', '/', {'message': msg});
+        APIInfo.host, APIInfo.messageAIRoute, {APIInfo.messageParamKey: msg});
 
     // response
     String reply = '';
