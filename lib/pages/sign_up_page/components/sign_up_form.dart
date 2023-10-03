@@ -1,3 +1,4 @@
+import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/user_model.dart';
 import 'package:aski/pages/dashboard/dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -214,7 +215,7 @@ class SignUpFormState extends State<SignUpForm> {
         // Insert data into firestore
         final db = FirebaseFirestore.instance;
         await db
-            .collection('users')
+            .collection(UsersCollection.name)
             .doc(creds.user!.uid)
             .set(userModel.toMapObject())
             .onError((error, stackTrace) =>

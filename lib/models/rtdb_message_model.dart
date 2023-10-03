@@ -1,14 +1,10 @@
+import 'package:aski/constants/database_constants.dart';
+
 class RTDBMessageModel {
   final String sender;
   final String receiver;
   final String content;
   final int timestamp;
-
-  static const String _senderKey = 'sender';
-  static const String _receiverKey = 'receiver';
-  static const String _contentKey = 'content';
-  static const String _lastMessageKey = 'last_message';
-  static const String _timestampKey = 'timestamp';
 
   RTDBMessageModel({
     required this.sender, required this.receiver,
@@ -17,26 +13,26 @@ class RTDBMessageModel {
 
   factory RTDBMessageModel.fromJson(Map<String, dynamic> json) {
     return RTDBMessageModel(
-        sender: json[_senderKey], receiver: json[_receiverKey],
-        content: json[_contentKey], timestamp: json[_timestampKey]
+        sender: json[MessagesRTDBObject.senderKey], receiver: json[MessagesRTDBObject.receiverKey],
+        content: json[MessagesRTDBObject.contentKey], timestamp: json[MessagesRTDBObject.timestampKey]
     );
   }
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json[_senderKey] = sender;
-    json[_receiverKey] = receiver;
-    json[_contentKey] = content;
-    json[_timestampKey] = timestamp;
+    json[MessagesRTDBObject.senderKey] = sender;
+    json[MessagesRTDBObject.receiverKey] = receiver;
+    json[MessagesRTDBObject.contentKey] = content;
+    json[MessagesRTDBObject.timestampKey] = timestamp;
 
     return json;
   }
 
   Map<String, dynamic> toMetadata() {
     Map<String, dynamic> json = {};
-    json[_senderKey] = sender;
-    json[_lastMessageKey] = content;
-    json[_timestampKey] = timestamp;
+    json[MessagesRTDBObject.senderKey] = sender;
+    json[MessagesRTDBObject.lastMessageKey] = content;
+    json[MessagesRTDBObject.timestampKey] = timestamp;
 
     return json;
   }

@@ -79,11 +79,10 @@ class _ChatUIState extends State<ChatUI> {
           debugPrint(newMessage.toString());
           debugPrint('End new message');
 
-          if(_latestMessages.first.notEquals(newMessage)) {
-            _latestMessages.insert(0, newMessage);
-            _animListKey.currentState!.insertItem(_latestMessages.length - 1,
-                duration: const Duration(milliseconds: 20));
-          }
+          if(_latestMessages.isNotEmpty && _latestMessages.first.equals(newMessage)) return;
+          _latestMessages.insert(0, newMessage);
+          _animListKey.currentState!.insertItem(_latestMessages.length - 1,
+              duration: const Duration(milliseconds: 20));
         });
       });
 

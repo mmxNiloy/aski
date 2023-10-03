@@ -1,3 +1,4 @@
+import 'package:aski/constants/database_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
@@ -16,14 +17,6 @@ class PostsModel {
   final int downvotes;
   late String? postID;
 
-  static const String _titleKey = 'title';
-  static const String _messageKey = 'message';
-  static const String _timestampKey = 'timestamp';
-  static const String _ownerIdKey = 'owner_id';
-  static const String _visibilityKey = 'visibility';
-  static const String _upvotesKey = 'upvotes';
-  static const String _downvotesKey = 'downvotes';
-
   PostsModel(
       {required this.title,
       required this.message,
@@ -36,13 +29,13 @@ class PostsModel {
 
   factory PostsModel.fromJson(Map<String, dynamic> json) {
     return PostsModel(
-        title: json[_titleKey],
-        message: json[_messageKey],
-        ownerId: json[_ownerIdKey],
-        visibility: json[_visibilityKey],
-        timestamp: json[_timestampKey],
-        upvotes: json[_upvotesKey],
-        downvotes: json[_downvotesKey]
+        title: json[PostsCollection.titleKey],
+        message: json[PostsCollection.messageKey],
+        ownerId: json[PostsCollection.ownerIdKey],
+        visibility: json[PostsCollection.visibilityKey],
+        timestamp: json[PostsCollection.timestampKey],
+        upvotes: json[PostsCollection.upVotesKey],
+        downvotes: json[PostsCollection.downVotesKey]
     );
   }
 
@@ -53,13 +46,13 @@ class PostsModel {
 
   Map<String, dynamic> toFirestore() {
     return {
-      _titleKey: title,
-      _messageKey: message,
-      _timestampKey: timestamp,
-      _ownerIdKey: ownerId,
-      _visibilityKey: visibility,
-      _upvotesKey: upvotes,
-      _downvotesKey: downvotes
+      PostsCollection.titleKey: title,
+      PostsCollection.messageKey: message,
+      PostsCollection.timestampKey: timestamp,
+      PostsCollection.ownerIdKey: ownerId,
+      PostsCollection.visibilityKey: visibility,
+      PostsCollection.upVotesKey: upvotes,
+      PostsCollection.downVotesKey: downvotes
     };
   }
 
