@@ -42,6 +42,13 @@ class PostVotersSubCollection {
   static const String voteTypeDownVote = 'downvote';
 }
 
+/// This sub-collection belongs to documents in posts collection
+class PostCommentsSubCollection {
+  static const String name = 'comments';
+  static const String ownerIDKey = "ownerID";
+  static const String messageKey = "message";
+}
+
 class ChatsRTDBObject {
   static const String name = 'chats';
 

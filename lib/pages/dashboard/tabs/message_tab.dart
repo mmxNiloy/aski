@@ -1,5 +1,6 @@
 import 'package:aski/components/profile_preview_container.dart';
 import 'package:aski/constants/database_constants.dart';
+import 'package:aski/models/ai_reply_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class MessageTab extends StatefulWidget {
   State<MessageTab> createState() => _MessageTabState();
 }
 
-class _MessageTabState extends State<MessageTab> {
+class _MessageTabState extends State<MessageTab> with AutomaticKeepAliveClientMixin<MessageTab> {
   late List<UserModel> _users;
 
   Future<List<UserModel>> getRegisteredUsers() async {
@@ -79,4 +80,8 @@ class _MessageTabState extends State<MessageTab> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

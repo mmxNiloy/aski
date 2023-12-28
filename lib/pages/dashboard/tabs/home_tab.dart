@@ -12,7 +12,10 @@ class HomeTab extends StatefulWidget {
   State<StatefulWidget> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> {
+class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin<HomeTab> {
+  @override
+  bool get wantKeepAlive => true;
+
   late List<PostsModel> posts;
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _postsStream;
   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -22,7 +25,7 @@ class _HomeTabState extends State<HomeTab> {
     // TODO: implement initState
     super.initState();
 
-    _postsStream = buildQuery(false).snapshots();
+    _postsStream = buildQuery(false).get().asStream();
   }
 
   Query<Map<String, dynamic>> buildQuery([bool? isLimited, int? lim]) {
@@ -53,7 +56,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget postsStreamBuilder() {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _postsStream,
         builder: (cotext, snapshot) {
           if(snapshot.hasError) {
@@ -84,13 +87,14 @@ class _HomeTabState extends State<HomeTab> {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListView(
-              children: snapshot.data!.docs.map((DocumentSnapshot docSnap){
-                Map<String, dynamic> data = docSnap.data()! as Map<String, dynamic>;
+              children: snapshot.data!.docs.map((DocumentSnapshot<Map<String, dynamic>> docSnap){
+                Map<String, dynamic> data = docSnap.data()!;
                 PostsModel mPost = PostsModel.fromJson(data);
                 mPost.postID = docSnap.id;
 
                 return PostContainer(
                     model: mPost,
+                    isPreview: true,
                 );
               }).toList().cast(),
             ),

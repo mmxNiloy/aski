@@ -3,9 +3,12 @@
 // Plan: Scale up to accomodate comments, votes(up and down), and [TODO]
 // TODO: Take care of the memory leaks dart is freaking out about.
 // TODO: Resize the container, blur out excess content, on comment button tap navigate to a page with full post details
+import 'dart:math';
+
 import 'package:aski/components/post_container_shimmer.dart';
 import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/posts_model.dart';
+import 'package:aski/pages/comment_section_page/comment_section_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aski/models/user_model.dart';
@@ -14,8 +17,9 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class PostContainer extends StatefulWidget {
   final PostsModel model;
+  final bool isPreview;
 
-  const PostContainer({super.key, required this.model});
+  const PostContainer({super.key, required this.model, required this.isPreview});
 
   @override
   State<PostContainer> createState() => _PostContainerState();
@@ -109,12 +113,13 @@ class _PostContainerState extends State<PostContainer> {
       color: Theme.of(context).secondaryHeaderColor,
       margin: const EdgeInsets.all(8),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             drawCardHeader(),
+            Divider(color: Theme.of(context).dividerColor,),
             const SizedBox(
               height: 8.0,
             ),
@@ -123,6 +128,7 @@ class _PostContainerState extends State<PostContainer> {
             drawCardContent(),
             const SizedBox(height: 8.0),
 
+            Divider(color: Theme.of(context).dividerColor,),
             // Upvote, downvote, and comments yada yada
             drawCardActions()
           ],
@@ -194,10 +200,13 @@ class _PostContainerState extends State<PostContainer> {
                   // Report button
                   PopupMenuItem(
                       child: ListTile(
-                    title: const Text('Report'),
-                    leading: const Icon(Icons.report_problem),
-                    onTap: reportPost,
-                  ))
+                        title: const Text('Report'),
+                        leading: const Icon(Icons.report_problem),
+                        onTap: reportPost,
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      )
+                  )
                 ]),
       ],
     );
@@ -216,7 +225,7 @@ class _PostContainerState extends State<PostContainer> {
           widget.model.title,
           maxLines: 3,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             overflow: TextOverflow.fade,
           ),
@@ -229,8 +238,7 @@ class _PostContainerState extends State<PostContainer> {
         // Post Content
         // TODO: Constraint the box to facilitate a few lines as preview
         HtmlWidget(
-          widget.model.message,
-          textStyle: const TextStyle(overflow: TextOverflow.fade),
+          getHTML(),
         ),
       ],
     );
@@ -254,6 +262,8 @@ class _PostContainerState extends State<PostContainer> {
                   leading: Icon(Icons.arrow_upward),
                   title: Text(''),
                   enabled: false,
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
                 );
               }
 
@@ -261,6 +271,8 @@ class _PostContainerState extends State<PostContainer> {
                 leading: drawUpVoteIcon(),
                 title: Text(snapshot.data!.data()![PostsCollection.upVotesKey].toString()),
                 onTap: upVotePost,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
               );
             },
           ),
@@ -278,6 +290,8 @@ class _PostContainerState extends State<PostContainer> {
                   leading: Icon(Icons.arrow_upward),
                   title: Text(''),
                   enabled: false,
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
                 );
               }
 
@@ -285,25 +299,30 @@ class _PostContainerState extends State<PostContainer> {
                 leading: drawDownVoteIcon(),
                 title: Text(snapshot.data!.data()![PostsCollection.downVotesKey].toString()),
                 onTap: downVotePost,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
               );
             },
           ),
         ),
 
         const Spacer(
-          flex: 3,
+          flex: 1,
         ),
 
         // Comment
         Flexible(
           flex: 2,
           child: ListTile(
-            trailing: const Icon(Icons.comment),
+            leading: const Icon(
+                Icons.comment,
+            ),
             title: const Text(
               'Comment',
-              textAlign: TextAlign.end,
             ),
             onTap: viewPostDetails,
+            dense: true,
+            contentPadding: EdgeInsets.zero,
           ),
         ),
       ],
@@ -416,7 +435,15 @@ class _PostContainerState extends State<PostContainer> {
   }
 
   void viewPostDetails() {
-    // TODO: Navigate to post details page
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => CommentSectionPage(postID: widget.model.postID!))
+    );
+  }
+
+  String getHTML() {
+    String html = widget.model.message;
+    if(widget.isPreview) return html.substring(0, min(html.length, 1024));
+    return html;
   }
 }
 
