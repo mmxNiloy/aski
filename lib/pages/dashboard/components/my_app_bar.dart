@@ -11,12 +11,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: false,
       title: const Text(
-        'Aski',
-        style: TextStyle(
-          color: Color(0xFFFFFFFF),
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
+        'ASKi',
       ),
       centerTitle: false,
       actions: [
