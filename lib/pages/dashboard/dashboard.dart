@@ -27,25 +27,22 @@ class _DashboardState extends State<Dashboard> {
 
   List<NavigationDestination> _bottomNavItems = [
     NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: "Home",
+      icon: Icon(Icons.home_outlined),
+      selectedIcon: Icon(Icons.home),
+      label: "Home",
     ),
     NavigationDestination(
         icon: Icon(Icons.message_outlined),
         selectedIcon: Icon(Icons.message),
-        label: 'Message'
-    ),
+        label: 'Message'),
     NavigationDestination(
         icon: Icon(Icons.add_circle_outline),
         selectedIcon: Icon(Icons.add_circle),
-        label: 'Ask'
-    ),
+        label: 'Ask'),
     NavigationDestination(
         icon: Icon(Icons.notifications_outlined),
         selectedIcon: Icon(Icons.notifications),
-        label: 'Notifications'
-    ),
+        label: 'Notifications'),
   ];
 
   @override
@@ -62,9 +59,7 @@ class _DashboardState extends State<Dashboard> {
                 onPressed: () {
                   Scaffold.of(context).openEndDrawer();
                 },
-                style: ElevatedButton.styleFrom(
-                    shape: const CircleBorder()
-                ),
+                style: ElevatedButton.styleFrom(shape: const CircleBorder()),
                 child: const CircleAvatar(),
               ),
             ),
