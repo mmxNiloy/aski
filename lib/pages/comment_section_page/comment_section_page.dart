@@ -2,6 +2,7 @@ import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/posts_model.dart';
 import 'package:aski/pages/comment_section_page/components/comment_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aski/models/comments_model.dart';
 
@@ -16,7 +17,7 @@ class CommentSectionPage extends StatefulWidget {
 
 class _PostDetailPageState extends State<CommentSectionPage> {
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _stream;
-
+  final TextEditingController _commentController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -53,20 +54,28 @@ class _PostDetailPageState extends State<CommentSectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ASKi'),
-        leading: IconButton(
-            onPressed: handleBackButton,
-            icon: const Icon(Icons.keyboard_arrow_left)
-        ),
-      ),
-      body: commentsStreamBuilder(),
-
-      // Comment text field, it will route to a new page where a user
-      // can write their comment in a text editor.
-      bottomSheet: TextField(
-        textAlign: TextAlign.left,
-        onTap: handleComment,
+      resizeToAvoidBottomInset: true,
+      body: Column(
+        children: [
+          Flexible(
+              flex: 9,
+              child: commentsStreamBuilder()
+          ),
+          Flexible(
+              flex: 1,
+              child: TextField(
+                controller: _commentController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Write a comment',
+                  suffix: IconButton(
+                      onPressed: postComment,
+                      icon: Icon(Icons.send)
+                  ),
+                ),
+              )
+          ),
+        ],
       ),
     );
   }
@@ -88,12 +97,27 @@ class _PostDetailPageState extends State<CommentSectionPage> {
         }
 
         if(snapshot.connectionState == ConnectionState.waiting) {
-          return const Text("Loading...");
+          return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  Text('Loading...')
+                ],
+              )
+          );
         }
 
         if(snapshot.hasData) {
+          List<QueryDocumentSnapshot<Map<String, dynamic>>> comments = snapshot.data!.docs;
+
+          if(comments.isEmpty) return const Center(child: Text("No comments yet."));
+          // for(var i = 0 ; i < 10 ; i++) {
+          //   comments.add(comments.first);
+          // }
+
           return ListView(
-            children: snapshot.data!.docs.map(
+            children: comments.map(
                 (DocumentSnapshot<Map<String, dynamic>> docSnap) {
                   return CommentContainer(
                       model: CommentsModel.fromJSON(docSnap.data()!)
@@ -103,8 +127,29 @@ class _PostDetailPageState extends State<CommentSectionPage> {
           );
         }
 
-        return const Text("No comments yet.");
+        return const Center(child: Text("No comments yet."));
       },
+    );
+  }
+
+  Future<void> postComment() async {
+    String comment = _commentController.text.trim();
+
+    User mUser = FirebaseAuth.instance.currentUser!;
+    if(comment.isEmpty) return;
+
+    // try to post the comment to the database
+    final dbRef = FirebaseFirestore.instance;
+    final postsRef = dbRef.collection(PostsCollection.name);
+    final postRef = postsRef.doc(widget.postID);
+    final commentsRef = postRef.collection(PostCommentsSubCollection.name);
+
+    final commentRef = await commentsRef.add(
+      CommentsModel(
+          ownerID: mUser.uid,
+          message: comment,
+          timestamp: Timestamp.now()
+      ).toJson()
     );
   }
 }

@@ -47,6 +47,8 @@ class PostCommentsSubCollection {
   static const String name = 'comments';
   static const String ownerIDKey = "ownerID";
   static const String messageKey = "message";
+
+  static var timestampKey = "timestamp";
 }
 
 class ChatsRTDBObject {

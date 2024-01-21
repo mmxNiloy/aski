@@ -216,31 +216,34 @@ class _PostContainerState extends State<PostContainer> {
     // Body and meat of the card
     // Will show the main contents of the post
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Post Title
-        Text(
-          widget.model.title,
-          maxLines: 3,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            overflow: TextOverflow.fade,
+    return InkWell(
+      onTap: viewPostDetails,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Post Title
+          Text(
+            widget.model.title,
+            maxLines: 3,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              overflow: TextOverflow.fade,
+            ),
           ),
-        ),
 
-        const SizedBox(
-          height: 8.0,
-        ),
+          const SizedBox(
+            height: 8.0,
+          ),
 
-        // Post Content
-        // TODO: Constraint the box to facilitate a few lines as preview
-        HtmlWidget(
-          getHTML(),
-        ),
-      ],
+          // Post Content
+          // TODO: Constraint the box to facilitate a few lines as preview
+          HtmlWidget(
+            getHTML(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -435,9 +438,17 @@ class _PostContainerState extends State<PostContainer> {
   }
 
   void viewPostDetails() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => CommentSectionPage(postID: widget.model.postID!))
+    showModalBottomSheet(
+        context: context,
+        builder: (context) => FractionallySizedBox(
+            heightFactor: 0.9,
+            child: CommentSectionPage(postID: widget.model.postID!)
+        ),
+        isScrollControlled: true,
     );
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(builder: (context) => CommentSectionPage(postID: widget.model.postID!))
+    // );
   }
 
   String getHTML() {
