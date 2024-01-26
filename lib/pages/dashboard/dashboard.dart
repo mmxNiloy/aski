@@ -1,6 +1,5 @@
 import 'package:aski/pages/dashboard/components/dashboard_drawer_main.dart';
 import 'package:aski/pages/dashboard/components/dashboard_drawer_profile.dart';
-import 'package:aski/pages/dashboard/components/my_app_bar.dart';
 import 'package:aski/pages/dashboard/tabs/ask_question_tab.dart';
 import 'package:aski/pages/dashboard/tabs/home_tab.dart';
 import 'package:aski/pages/dashboard/tabs/message_tab.dart';
@@ -16,30 +15,30 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   int _navbarIndex = 0;
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
 
-  List<Widget> _tabs = [
-    HomeTab(),
-    MessageTab(),
-    AskQuestionTab(),
-    NotificationsTab(),
+  final List<Widget> _tabs = [
+    const HomeTab(),
+    const MessageTab(),
+    const AskQuestionTab(),
+    const NotificationsTab(),
   ];
 
-  List<NavigationDestination> _bottomNavItems = [
-    NavigationDestination(
+  final List<NavigationDestination> _bottomNavItems = [
+    const NavigationDestination(
       icon: Icon(Icons.home_outlined),
       selectedIcon: Icon(Icons.home),
       label: "Home",
     ),
-    NavigationDestination(
+    const NavigationDestination(
         icon: Icon(Icons.message_outlined),
         selectedIcon: Icon(Icons.message),
         label: 'Message'),
-    NavigationDestination(
+    const NavigationDestination(
         icon: Icon(Icons.add_circle_outline),
         selectedIcon: Icon(Icons.add_circle),
         label: 'Ask'),
-    NavigationDestination(
+    const NavigationDestination(
         icon: Icon(Icons.notifications_outlined),
         selectedIcon: Icon(Icons.notifications),
         label: 'Notifications'),
@@ -66,8 +65,8 @@ class _DashboardState extends State<Dashboard> {
           ],
         ),
         // Main drawer
-        drawer: DashboardDrawerMain(),
-        endDrawer: DashboardDrawerProfile(),
+        drawer: const DashboardDrawerMain(),
+        endDrawer: const DashboardDrawerProfile(),
         bottomNavigationBar: NavigationBar(
           labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           destinations: _bottomNavItems,
@@ -78,7 +77,7 @@ class _DashboardState extends State<Dashboard> {
         //**Body part Begins from here */
         body: PageView(
           controller: _pageController,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           children: _tabs,
         ),
       ),

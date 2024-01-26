@@ -1,5 +1,3 @@
-import 'package:aski/components/post_container.dart';
-import 'package:aski/models/posts_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
