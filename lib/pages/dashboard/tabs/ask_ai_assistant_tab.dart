@@ -8,127 +8,130 @@ import 'package:http/http.dart' as http;
 
 import '../../../components/chat_bubble.dart';
 
-class AIAssistantTab extends StatefulWidget {
-  const AIAssistantTab({super.key});
+class AskAIAssistantTab extends StatefulWidget {
+  const AskAIAssistantTab({super.key});
 
   @override
-  State<StatefulWidget> createState() => AIAssistantTabState();
+  State<StatefulWidget> createState() => _AskAIAssistantTabState();
 }
 
 enum Role { user, ai, loading }
 
-class AIAssistantTabState extends State<AIAssistantTab> {
+class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final GlobalKey<AnimatedListState> _animListKey = GlobalKey();
+  final _tecMsg = TextEditingController();
 
-  late String message;
-  bool isAIReply = false;
+  String _message = '';
+  bool _isAIReply = false;
   final List<String> _messages = [];
   final List<Role> _roles = []; // true -> ai, false -> user
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _scaffoldKey,
-        drawer: Drawer(
-            child: ListView(
-          padding: EdgeInsets.zero,
+      appBar: AppBar(
+        title: const Text('ASKi > AI Assistant'),
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => _openHistoryDrawer(context),
+              );
+            }
+          )
+        ],
+      ),
+      endDrawer: const Drawer(
+        child: Column(
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Drawer Header'),
+            DrawerHeader(
+              child: Text('History'),
             ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
+            Expanded(
+                child: Center(
+                  child: Text('TODO: Render asked questions history'),
+                )
             ),
           ],
-        )),
-        body: Stack(
-          children: [
-            FloatingActionButton.small(
-              onPressed: openDrawer,
-              child: const Icon(Icons.menu),
-            ),
-            Center(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width / 2.0,
-                child: Column(
-                  children: [
-                    // Viewport
-                    SingleChildScrollView(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 2.0 / 3.0,
-                        child: AnimatedList(
-                          reverse: true,
-                          key: _animListKey,
-                          itemBuilder: (context, index, animation) {
-                            return SlideTransition(
-                              position: animation.drive(Tween<Offset>(
-                                  begin: const Offset(0, 1), end: Offset.zero)),
-                              child: _roles[index] == Role.loading
-                                  ? TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,)
-                                  : ChatBubble(
-                                      content: _messages[index],
-                                      isIncoming: _roles[index] == Role.ai),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+        ),
+      ),
 
-                    // Chat Textfield
-                    TextField(
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.send),
-                          onPressed: sendMessage,
-                        ),
-                      ),
-                      minLines: 1,
-                      maxLines: 8,
-                      onChanged: (value) {
-                        setState(() {
-                          message = value;
-                        });
-                      },
-                    )
-                  ],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            // Main viewport
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: AnimatedList(
+                  shrinkWrap: true,
+                  reverse: true,
+                  key: _animListKey,
+                  itemBuilder: (context, index, animation) {
+                    return SlideTransition(
+                      position: animation.drive(Tween<Offset>(
+                          begin: const Offset(0, 1), end: Offset.zero)),
+                      child: _roles[index] == Role.loading
+                          ? TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,)
+                          : ChatBubble(
+                          content: _messages[index],
+                          isIncoming: _roles[index] == Role.ai),
+                    );
+                  },
                 ),
               ),
-            )
+            ),
+            SizedBox(height: 7,),
+            Divider(
+              height: 1,
+              color: Theme.of(context).dividerColor,
+            ),
+            // Chat text box
+            TextField(
+              controller: _tecMsg,
+              onChanged: (value) {
+                setState(() {
+                  _message = value;
+                });
+              },
+              decoration: InputDecoration(
+                suffix: IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
+              ),
+              minLines: 1,
+              maxLines: 3,
+            ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 
-  void openDrawer() {
-    debugPrint("Attempting to open drawer");
-    _scaffoldKey.currentState!.openDrawer();
-  }
+  void _sendMessage() async {
+    String msg = _tecMsg.text.trim();
+    if(msg.isEmpty) return;
 
-  void sendMessage() async {
+    _tecMsg.clear();
+
     _roles.insert(0, Role.user);
-    _messages.insert(0, message);
+    _messages.insert(0, msg);
     _animListKey.currentState?.insertItem(_messages.length - 1,
         duration: const Duration(milliseconds: 20));
 
-    getReply();
+    _getReply();
   }
 
-  Future<void> getReply() async {
+  Future<void> _getReply() async {
     // Encode message to uri
     String msg = Uri.encodeComponent(_messages.first);
 
@@ -151,6 +154,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
 
     // Successful fetch
     if (response.statusCode == 200) {
+      // debugPrint('AskAIAssistantTab > _getReply() > Success: ${response.body}');
       final hash = json.decode(response.body) as Map<String, dynamic>;
       final rModel = AIReplyModel.fromJSON(hash);
 
@@ -158,6 +162,7 @@ class AIAssistantTabState extends State<AIAssistantTab> {
       reply = rModel.getFirstReply();
     } else {
       reply = 'Error parsing message';
+      // debugPrint('AskAIAssistantTab > _getReply() > Error: ${response.body}');
     }
 
     // Retract the typing indicator
@@ -172,5 +177,10 @@ class AIAssistantTabState extends State<AIAssistantTab> {
     _messages.insert(0, reply);
     _animListKey.currentState?.insertItem(_messages.length - 1,
         duration: const Duration(milliseconds: 20));
+  }
+
+  void _openHistoryDrawer(BuildContext context) {
+    Scaffold.of(context)
+        .openEndDrawer();
   }
 }

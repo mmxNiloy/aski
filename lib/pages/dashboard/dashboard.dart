@@ -1,5 +1,7 @@
 import 'package:aski/pages/dashboard/components/dashboard_drawer_main.dart';
 import 'package:aski/pages/dashboard/components/dashboard_drawer_profile.dart';
+import 'package:aski/pages/dashboard/components/my_app_bar.dart';
+import 'package:aski/pages/dashboard/tabs/ask_ai_assistant_tab.dart';
 import 'package:aski/pages/dashboard/tabs/ask_question_tab.dart';
 import 'package:aski/pages/dashboard/tabs/home_tab.dart';
 import 'package:aski/pages/dashboard/tabs/message_tab.dart';
@@ -45,6 +47,12 @@ class _DashboardState extends State<Dashboard> {
   ];
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
@@ -86,8 +94,17 @@ class _DashboardState extends State<Dashboard> {
 
   void handleNavbarChange(int value) {
     setState(() {
-      _navbarIndex = value;
-      _pageController.jumpToPage(value);
+      if(value == 2) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const AskQuestionTab()
+            )
+        );
+      } else {
+        _navbarIndex = value;
+        _pageController.jumpToPage(value);
+      }
     });
   }
 }
