@@ -58,6 +58,7 @@ dependencies:
   firebase_database: ^10.2.6
   intl: ^0.18.1
   flutter_widget_from_html: ^0.14.11
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
