@@ -1,5 +1,4 @@
 import 'package:aski/constants/database_constants.dart';
-import 'package:aski/models/posts_model.dart';
 import 'package:aski/pages/comment_section_page/components/comment_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -66,11 +65,11 @@ class _PostDetailPageState extends State<CommentSectionPage> {
               child: TextField(
                 controller: _commentController,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   hintText: 'Write a comment',
                   suffix: IconButton(
                       onPressed: postComment,
-                      icon: Icon(Icons.send)
+                      icon: const Icon(Icons.send)
                   ),
                 ),
               )

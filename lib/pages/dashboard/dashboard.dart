@@ -73,8 +73,8 @@ class _DashboardState extends State<Dashboard> {
           ],
         ),
         // Main drawer
-        drawer: DashboardDrawerMain(),
-        endDrawer: DashboardDrawerProfile(),
+        drawer: const DashboardDrawerMain(),
+        endDrawer: const DashboardDrawerProfile(),
         bottomNavigationBar: NavigationBar(
           labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           destinations: _bottomNavItems,
