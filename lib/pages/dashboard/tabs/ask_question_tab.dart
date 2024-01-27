@@ -4,6 +4,7 @@ import 'package:aski/components/rich_text_editor.dart';
 import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/posts_model.dart';
 import 'package:aski/pages/dashboard/tabs/ask_ai_assistant_tab.dart';
+import 'package:aski/pages/dashboard/tabs/pdf_ai_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -146,6 +147,17 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
                   IconButton(
                       onPressed: (){},
                       icon: const Icon(Icons.ondemand_video)
+                  ),
+                  IconButton(
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PDFAIPage()
+                          )
+                        );
+                      },
+                      icon: const Icon(Icons.picture_as_pdf)
                   ),
                   const Expanded(
                     child: SizedBox(),

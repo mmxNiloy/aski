@@ -58,6 +58,7 @@ dependencies:
   firebase_database: ^10.2.6
   intl: ^0.18.1
   flutter_widget_from_html: ^0.10.5+3
+  firebase_storage: ^11.6.0
 
 dev_dependencies:
   flutter_test:
