@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aski/components/typing_indicator.dart';
 import 'package:aski/constants/server_response_constants.dart';
+import 'package:aski/constants/utils.dart';
 import 'package:aski/models/ai_reply_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -15,17 +16,12 @@ class AskAIAssistantTab extends StatefulWidget {
   State<StatefulWidget> createState() => _AskAIAssistantTabState();
 }
 
-enum Role { user, ai, loading }
-
 class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final GlobalKey<AnimatedListState> _animListKey = GlobalKey();
   final _tecMsg = TextEditingController();
 
-  String _message = '';
-  bool _isAIReply = false;
   final List<String> _messages = [];
-  final List<Role> _roles = []; // true -> ai, false -> user
+  final List<ChatRole> _roles = []; // true -> ai, false -> user
 
   @override
   Widget build(BuildContext context) {
@@ -79,17 +75,17 @@ class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
                     return SlideTransition(
                       position: animation.drive(Tween<Offset>(
                           begin: const Offset(0, 1), end: Offset.zero)),
-                      child: _roles[index] == Role.loading
+                      child: _roles[index] == ChatRole.loading
                           ? TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,)
                           : ChatBubble(
                           content: _messages[index],
-                          isIncoming: _roles[index] == Role.ai),
+                          isIncoming: _roles[index] == ChatRole.ai),
                     );
                   },
                 ),
               ),
             ),
-            SizedBox(height: 7,),
+            const SizedBox(height: 7,),
             Divider(
               height: 1,
               color: Theme.of(context).dividerColor,
@@ -97,11 +93,6 @@ class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
             // Chat text box
             TextField(
               controller: _tecMsg,
-              onChanged: (value) {
-                setState(() {
-                  _message = value;
-                });
-              },
               decoration: InputDecoration(
                 suffix: IconButton(
                   icon: const Icon(Icons.send),
@@ -123,7 +114,7 @@ class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
 
     _tecMsg.clear();
 
-    _roles.insert(0, Role.user);
+    _roles.insert(0, ChatRole.user);
     _messages.insert(0, msg);
     _animListKey.currentState?.insertItem(_messages.length - 1,
         duration: const Duration(milliseconds: 20));
@@ -136,7 +127,7 @@ class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
     String msg = Uri.encodeComponent(_messages.first);
 
     // Release the typing indicator
-    _roles.insert(0, Role.loading);
+    _roles.insert(0, ChatRole.loading);
     _messages.insert(0, '');
     _animListKey.currentState?.insertItem(_roles.length - 1,
         duration: const Duration(milliseconds: 20));
@@ -173,7 +164,7 @@ class _AskAIAssistantTabState extends State<AskAIAssistantTab> {
     _messages.removeAt(0);
 
     // Push the ai reply
-    _roles.insert(0, Role.ai);
+    _roles.insert(0, ChatRole.ai);
     _messages.insert(0, reply);
     _animListKey.currentState?.insertItem(_messages.length - 1,
         duration: const Duration(milliseconds: 20));
