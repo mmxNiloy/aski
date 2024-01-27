@@ -1,8 +1,9 @@
-import 'package:aski/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DashboardDrawerProfile extends StatefulWidget {
+  const DashboardDrawerProfile({super.key});
+
   //const DashboardDrawerProfile({super.key});
 
   @override
@@ -41,7 +42,7 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
                       minRadius: MediaQuery.of(context).size.width / 8,
                       maxRadius: MediaQuery.of(context).size.width / 4,
                       backgroundColor: const Color.fromARGB(255, 178, 175, 175),
-                      foregroundImage: NetworkImage(
+                      foregroundImage: const NetworkImage(
                         "https://media.istockphoto.com/id/1476170969/photo/portrait-of-young-man-ready-for-job-business-concept.webp?b=1&s=170667a&w=0&k=20&c=FycdXoKn5StpYCKJ7PdkyJo9G5wfNgmSLBWk3dI35Zw=",
                       ), //! Profile picture needed
                     ),

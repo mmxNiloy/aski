@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:aski/components/rich_text_editor.dart';
@@ -8,6 +9,8 @@ import 'package:aski/pages/dashboard/tabs/pdf_ai_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AskQuestionTab extends StatefulWidget {
   const AskQuestionTab({super.key});
@@ -16,13 +19,15 @@ class AskQuestionTab extends StatefulWidget {
   State<AskQuestionTab> createState() => _AskQuestionTabState();
 }
 
-class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProviderStateMixin {
+class _AskQuestionTabState extends State<AskQuestionTab>
+    with SingleTickerProviderStateMixin {
+  List<File> _images = [];
   final TextEditingController titleController = TextEditingController();
   String _title = '';
   bool isAIQuestion = false;
   bool isPublic = false;
   final GlobalKey<FormState> _fkPost = GlobalKey<FormState>();
-  
+
   // Radiam menu _animCtrRadialMenu and animations
   late AnimationController _animCtrRadialMenu;
   late Animation<double> scale;
@@ -33,42 +38,27 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
   void initState() {
     super.initState();
     _animCtrRadialMenu = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 500)
-    );
+        vsync: this, duration: const Duration(milliseconds: 500));
 
-    rotation  = Tween<double>(
-        begin: 180.0,
-        end: 360.0,
+    rotation = Tween<double>(
+      begin: 180.0,
+      end: 360.0,
     ).animate(
       CurvedAnimation(
         parent: _animCtrRadialMenu,
         curve: const Interval(
-          0.3, 0.9,
+          0.3,
+          0.9,
           curve: Curves.decelerate,
         ),
       ),
     );
 
-    translation = Tween<double>(
-      begin: 0,
-      end: 100
-    ).animate(
-      CurvedAnimation(
-        parent: _animCtrRadialMenu,
-        curve: Curves.linear
-      )
-    );
+    translation = Tween<double>(begin: 0, end: 100).animate(
+        CurvedAnimation(parent: _animCtrRadialMenu, curve: Curves.linear));
 
-    scale = Tween<double>(
-        begin: 1.5,
-        end: 0
-    ).animate(
-        CurvedAnimation(
-            parent: _animCtrRadialMenu,
-            curve: Curves.fastOutSlowIn
-        )
-    );
+    scale = Tween<double>(begin: 1.5, end: 0).animate(CurvedAnimation(
+        parent: _animCtrRadialMenu, curve: Curves.fastOutSlowIn));
   }
 
   @override
@@ -87,10 +77,7 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
           TextButton(
             onPressed: _handlePost,
             child: const Row(
-              children: [
-                Text('Next'),
-                Icon(Icons.chevron_right)
-              ],
+              children: [Text('Next'), Icon(Icons.chevron_right)],
             ),
           )
         ],
@@ -101,7 +88,6 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
           icon: const Icon(Icons.chevron_left),
         ),
       ),
-
       body: Form(
         key: _fkPost,
         child: Padding(
@@ -110,7 +96,8 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
             children: [
               TextFormField(
                 validator: (value) {
-                  if(value == null || value.isEmpty) return 'Title cannot be empty';
+                  if (value == null || value.isEmpty)
+                    return 'Title cannot be empty';
                   return null;
                 },
                 onChanged: (value) {
@@ -134,12 +121,26 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
                   ),
                 ),
               ),
+
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _images.map((imgFile) {
+                    return Container(
+                      height: 128,
+                      width: 128,
+                      child: Image.file(imgFile));
+                  }).toList(),
+                ),
+              ),
               Row(
                 children: [
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.link)),
                   IconButton(
-                      onPressed: (){},
-                      icon: const Icon(Icons.link)
-                  ),
+                      onPressed: () {
+                        handleImagePicker();
+                      },
+                      icon: const Icon(Icons.image)),
                   IconButton(
                       onPressed: (){},
                       icon: const Icon(Icons.image)
@@ -165,12 +166,8 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
                   OutlinedButton(
                       onPressed: _handleAskAI,
                       child: const Row(
-                        children: [
-                          Icon(Icons.rocket_launch),
-                          Text('Ask AI')
-                        ],
-                      )
-                  )
+                        children: [Icon(Icons.rocket_launch), Text('Ask AI')],
+                      ))
                 ],
               ),
               // Radial menu
@@ -258,7 +255,6 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
               //       ),
               //     )
               // ),
-
             ],
           ),
         ),
@@ -278,8 +274,7 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
               ? PostVisibility.POST_PUBLIC
               : PostVisibility.POST_PRIVATE,
           upvotes: 0,
-          downvotes: 0
-      );
+          downvotes: 0);
 
       debugPrint('Data found, ${mPost.toString()}');
 
@@ -311,17 +306,11 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
     });
   }
 
-  void _handlePost() {
-
-  }
+  void _handlePost() {}
 
   void _handleAskAI() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AskAIAssistantTab()
-        )
-    );
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const AskAIAssistantTab()));
   }
 
   _openRadialMenu() {
@@ -336,15 +325,30 @@ class _AskQuestionTabState extends State<AskQuestionTab> with SingleTickerProvid
     return (deg / 180.0) * pi;
   }
 
-  Widget _buildButton(double angle, Animation<double> translation, { required Widget child }) {
+  Widget _buildButton(double angle, Animation<double> translation,
+      {required Widget child}) {
     final double rad = radians(angle);
     return Transform(
-        transform: Matrix4.identity()..translate(
-            (translation.value) * cos(rad),
-            (translation.value) * sin(rad)
-        ),
+        transform: Matrix4.identity()
+          ..translate(
+              (translation.value) * cos(rad), (translation.value) * sin(rad)),
+        child: child);
+  }
 
-        child: child
-    );
+  Future<void> handleImagePicker() async {
+    try {
+      XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (img == null) return;
+
+      File? imgFile = File(img.path);
+      List<File> temp = _images;
+      temp.add(imgFile);
+      setState(() {
+        _images = temp;
+      });
+    } on PlatformException catch (e) {
+      debugPrint('Signup page > Image picker > ${e.message}');
+      return;
+    }
   }
 }

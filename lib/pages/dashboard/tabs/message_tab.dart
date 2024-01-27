@@ -1,6 +1,5 @@
 import 'package:aski/components/profile_preview_container.dart';
 import 'package:aski/constants/database_constants.dart';
-import 'package:aski/models/ai_reply_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
