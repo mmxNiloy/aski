@@ -45,7 +45,7 @@ class _DashboardState extends State<Dashboard> {
     const HomeTab(),
     const MessageTab(),
     const AskQuestionTab(),
-    const NotificationsTab(),
+    // const NotificationsTab(),
   ];
 
   final List<NavigationDestination> _bottomNavItems = [
@@ -62,10 +62,10 @@ class _DashboardState extends State<Dashboard> {
         icon: Icon(Icons.add_circle_outline),
         selectedIcon: Icon(Icons.add_circle),
         label: 'Ask'),
-    const NavigationDestination(
-        icon: Icon(Icons.notifications_outlined),
-        selectedIcon: Icon(Icons.notifications),
-        label: 'Notifications'),
+    // const NavigationDestination(
+    //     icon: Icon(Icons.notifications_outlined),
+    //     selectedIcon: Icon(Icons.notifications),
+    //     label: 'Notifications'),
   ];
 
   @override
