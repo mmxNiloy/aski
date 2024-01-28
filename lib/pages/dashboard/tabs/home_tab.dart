@@ -23,7 +23,6 @@ class _HomeTabState extends State<HomeTab>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     loadPosts();
@@ -64,7 +63,7 @@ class _HomeTabState extends State<HomeTab>
       onRefresh: loadPosts,
       child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: _postsStream,
-          builder: (cotext, snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Text('Error loading posts');
             }

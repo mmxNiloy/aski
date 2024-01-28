@@ -1,8 +1,11 @@
+import 'package:aski/models/posts_model.dart';
+import 'package:aski/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DashboardDrawerProfile extends StatefulWidget {
-  const DashboardDrawerProfile({super.key});
+  final UserModel? user;
+  const DashboardDrawerProfile({super.key, this.user});
 
   //const DashboardDrawerProfile({super.key});
 
@@ -50,7 +53,9 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
                   Expanded(
                     flex: 1,
                     child: Text(
-                      "User name", //! User name needed
+                      widget.user == null ? 
+                      "Username":
+                      '${widget.user!.firstName} ${widget.user!.lastName}', //! User name needed
                       style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height / 30,
                         fontFamily: 'Pacifico',
