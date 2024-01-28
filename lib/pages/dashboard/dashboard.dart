@@ -36,7 +36,9 @@ class _DashboardState extends State<Dashboard> {
         .doc(uid)
         .get();
 
-    return UserModel.fromJson(docSnap.data()!);
+    final json = docSnap.data()!;
+
+    return UserModel.fromJson(json);
   }
 
   final List<Widget> _tabs = [
@@ -97,7 +99,7 @@ class _DashboardState extends State<Dashboard> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return DashboardDrawerProfile(
-              user: _mUser,
+              user: snapshot.data,
             );
           }
 
