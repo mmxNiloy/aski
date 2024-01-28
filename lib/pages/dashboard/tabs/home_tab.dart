@@ -65,7 +65,11 @@ class _HomeTabState extends State<HomeTab>
           stream: _postsStream,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return const Text('Error loading posts');
+              const snackBar = SnackBar(
+                content: Text('Error loading posts'),
+              );
+
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
