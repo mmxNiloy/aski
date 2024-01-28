@@ -124,9 +124,11 @@ class _ChatUIState extends State<ChatUI> {
       return Column(
         children: [
           // Viewport for messages
-          FutureBuilder<List<RTDBMessageModel>>(
-            future: _futureLatestMessagesList,
-            builder: buildChatViewport,
+          Expanded(
+            child: FutureBuilder<List<RTDBMessageModel>>(
+              future: _futureLatestMessagesList,
+              builder: buildChatViewport,
+            ),
           ),
 
           // Chat Textfield
@@ -140,7 +142,7 @@ class _ChatUIState extends State<ChatUI> {
             ),
             readOnly: _isLoadingMessages,
             minLines: 1,
-            maxLines: widget.maxChatBoxLines,
+            maxLines: 3,
             controller: _chatboxController,
           )
         ],
@@ -163,31 +165,26 @@ class _ChatUIState extends State<ChatUI> {
 
   Widget buildChatViewport(BuildContext context, AsyncSnapshot<List<RTDBMessageModel>> snapshot) {
     if(snapshot.hasData) {
-      return SingleChildScrollView(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * widget.heightFactor,
-          width: MediaQuery.of(context).size.width * widget.widthFactor,
-          child: AnimatedList(
-            initialItemCount: _latestMessages.length,
-            reverse: true,
-            key: _animListKey,
-            itemBuilder: (context, index, animation) {
-              return SlideTransition(
-                position: animation.drive(Tween<Offset>(
-                    begin: const Offset(0, 1), end: Offset.zero)),
-                child: _isLoadingMessages // TODO: show typing indicator when the other person is typing
-                    ? TypingIndicator(
-                  showIndicator: true,
-                  bubbleColor: Theme.of(context).highlightColor,
-                )
-                    : ChatBubble(
-                    content: _latestMessages[index].content,
-                    isIncoming: _latestMessages[index].sender != _senderUID
-                ),
-              );
-            },
-          ),
-        ),
+      return AnimatedList(
+        shrinkWrap: true,
+        initialItemCount: _latestMessages.length,
+        reverse: true,
+        key: _animListKey,
+        itemBuilder: (context, index, animation) {
+          return SlideTransition(
+            position: animation.drive(Tween<Offset>(
+                begin: const Offset(0, 1), end: Offset.zero)),
+            child: _isLoadingMessages // TODO: show typing indicator when the other person is typing
+                ? TypingIndicator(
+              showIndicator: true,
+              bubbleColor: Theme.of(context).highlightColor,
+            )
+                : ChatBubble(
+                content: _latestMessages[index].content,
+                isIncoming: _latestMessages[index].sender != _senderUID
+            ),
+          );
+        },
       );
     } else if(snapshot.hasError) {
       return const Center(

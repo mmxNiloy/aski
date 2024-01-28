@@ -97,25 +97,7 @@ class _PDFAIPageState extends State<PDFAIPage> {
             _renderUploadProgressBar(),
             // Main viewport
             Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: AnimatedList(
-                  shrinkWrap: true,
-                  reverse: true,
-                  key: _animListKey,
-                  itemBuilder: (context, index, animation) {
-                    return SlideTransition(
-                      position: animation.drive(Tween<Offset>(
-                          begin: const Offset(0, 1), end: Offset.zero)),
-                      child: _roles[index] == ChatRole.loading
-                          ? TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,)
-                          : ChatBubble(
-                          content: _messages[index],
-                          isIncoming: _roles[index] == ChatRole.ai),
-                    );
-                  },
-                ),
-              ),
+              child: _renderMainViewport(),
             ),
             const SizedBox(height: 7,),
             Divider(
@@ -124,6 +106,7 @@ class _PDFAIPageState extends State<PDFAIPage> {
             ),
             // Chat text box
             TextField(
+              enabled: _fileLink.isNotEmpty,
               controller: _tecMsg,
               decoration: InputDecoration(
                 suffix: IconButton(
@@ -167,26 +150,19 @@ class _PDFAIPageState extends State<PDFAIPage> {
 
     // Fetch a reply from the API
 
-    // request uri
-    final rUri = Uri.http(
-        APIInfo.host, APIInfo.messageAIRoute, {APIInfo.messageParamKey: msg});
-
-    // response
+    // response from AI
     String reply = '';
 
-    final response = await http.get(rUri);
+    for(var apiKey in ChatPDFAPIInfo.apiKeys) {
+      reply = await _getAIResponse(apiKey, msg);
 
-    // Successful fetch
-    if (response.statusCode == 200) {
-      // debugPrint('AskAIAssistantTab > _getReply() > Success: ${response.body}');
-      final hash = json.decode(response.body) as Map<String, dynamic>;
-      final rModel = AIReplyModel.fromJSON(hash);
+      if(reply != ChatPDFAPIInfo.errContent && reply != ChatPDFAPIInfo.errSource) {
+        break;
+      }
+    }
 
-      // Defaulting to the first choice
-      reply = rModel.getFirstReply();
-    } else {
-      reply = 'Error parsing message';
-      // debugPrint('AskAIAssistantTab > _getReply() > Error: ${response.body}');
+    if(reply.isEmpty) {
+      reply = 'Unable to fetch a response';
     }
 
     // Retract the typing indicator
@@ -273,5 +249,63 @@ class _PDFAIPageState extends State<PDFAIPage> {
     return LinearProgressIndicator(
       value: _completionPct,
     );
+  }
+
+  Widget _renderMainViewport() {
+    if(_fileLink.isEmpty) {
+      return const Center(
+        child: Text('Upload a file to chat with AI'),
+      );
+    }
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: AnimatedList(
+        shrinkWrap: true,
+        reverse: true,
+        key: _animListKey,
+        itemBuilder: (context, index, animation) {
+          return SlideTransition(
+            position: animation.drive(Tween<Offset>(
+                begin: const Offset(0, 1), end: Offset.zero)),
+            child: _roles[index] == ChatRole.loading
+                ? TypingIndicator(showIndicator: true, bubbleColor: Theme.of(context).highlightColor,)
+                : ChatBubble(
+                content: _messages[index],
+                isIncoming: _roles[index] == ChatRole.ai),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<String> _getAIResponse(String apiKey, String msg) async {
+    final req = ChatPDFAPIInfo.requestSourceId(apiKey, _fileLink);
+
+
+    final response = await req;
+
+    String sourceId = '';
+
+    // Successful fetch of source id
+    if (response.statusCode == 200) {
+      final hash = json.decode(response.body) as Map<String, dynamic>;
+      sourceId = hash['sourceId']!;
+
+      // Send a request to get AI response
+      String content = '';
+      final reqChat = ChatPDFAPIInfo.requestAIResponse(apiKey, sourceId, msg);
+      final responseChat = await reqChat;
+      if(responseChat.statusCode == 200) {
+        final cHash = json.decode(responseChat.body) as Map<String, dynamic>;
+        debugPrint('Response Chat > ${cHash.toString()}');
+        content = cHash['content']!;
+        return content;
+      } else {
+        return ChatPDFAPIInfo.errContent;
+      }
+    } else {
+      return ChatPDFAPIInfo.errSource;
+    }
   }
 }
