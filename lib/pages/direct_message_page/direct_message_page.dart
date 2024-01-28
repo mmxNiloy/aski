@@ -48,7 +48,8 @@ class DirectMessagePageState extends State<DirectMessagePage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: CircleAvatar(
-                backgroundImage: _renderAvatar(),
+                foregroundImage: _renderAvatar(),
+                backgroundImage: const AssetImage('images/profile_image.jpg'),
               ),
             ),
 
@@ -75,6 +76,6 @@ class DirectMessagePageState extends State<DirectMessagePage> {
       return NetworkImage(widget.receiver.profilePicUri!);
     }
 
-    return const AssetImage('images/profile_image.jpg');
+    return null;
   }
 }

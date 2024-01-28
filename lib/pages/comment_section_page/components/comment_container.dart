@@ -34,7 +34,8 @@ class CommentContainer extends StatelessWidget {
                 children: [
                   // Profile picture goes here
                   CircleAvatar(
-                    backgroundImage: _renderAvatar(snapshot.data!.profilePicUri),
+                    foregroundImage: _renderAvatar(snapshot.data!.profilePicUri),
+                    backgroundImage: const AssetImage('images/profile_image.jpg'),
                   ),
                   Card(
                       child: Padding(
@@ -97,7 +98,7 @@ class CommentContainer extends StatelessWidget {
       return NetworkImage(dpLink);
     }
 
-    return const AssetImage('images/profile_image.jpg');
+    return null;
   }
 
   String _getPostTime() {

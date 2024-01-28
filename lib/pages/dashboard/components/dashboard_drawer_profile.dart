@@ -36,7 +36,7 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
       return MemoryImage(_selectedImage!);
     }
 
-    return const AssetImage('images/profile_image.jpg');
+    return null;
   }
 
   Future<void> pickingImage() async {
@@ -113,7 +113,8 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
                       minRadius: MediaQuery.of(context).size.width / 8,
                       maxRadius: MediaQuery.of(context).size.width / 4,
                       backgroundColor: const Color.fromARGB(255, 178, 175, 175),
-                      backgroundImage: renderProfilePicture(),
+                      foregroundImage: renderProfilePicture(),
+                      backgroundImage: const AssetImage('images/profile_image.jpg'),
                     ),
                   ),
                   Expanded(

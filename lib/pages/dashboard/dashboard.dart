@@ -84,16 +84,31 @@ class _DashboardState extends State<Dashboard> {
       appBar: AppBar(
         title: const Text('ASKi'),
         actions: [
-          Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
-              style: ElevatedButton.styleFrom(shape: const CircleBorder()),
-              child: CircleAvatar(
-                backgroundImage: _renderAvatar(),
-              ),
-            ),
+          FutureBuilder<UserModel>(
+            future: _getUserInfo(),
+            builder: (context, snapshot) {
+              if(snapshot.hasData) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: InkWell(
+                    onTap: (){
+                      Scaffold.of(context).openEndDrawer();
+                    },
+                    child: CircleAvatar(
+                      foregroundImage: _renderAvatar(snapshot.data!.profilePicUri),
+                      backgroundImage: const AssetImage('images/profile_image.jpg'),
+                    ),
+                  ),
+                );
+              }
+
+              return const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: CircleAvatar(
+                    backgroundImage: AssetImage('images/profile_image.jpg'),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -147,11 +162,11 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
-  ImageProvider? _renderAvatar() {
-    if(_mUser!.profilePicUri != null && _mUser!.profilePicUri!.isNotEmpty) {
-      return NetworkImage(_mUser!.profilePicUri!);
+  ImageProvider? _renderAvatar(String? dpLink) {
+    if(dpLink != null && dpLink.isNotEmpty) {
+      return NetworkImage(dpLink);
     }
 
-    return const AssetImage('images/profile_image.jpg');
+    return null;
   }
 }

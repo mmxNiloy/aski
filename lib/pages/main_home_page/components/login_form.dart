@@ -132,6 +132,12 @@ class LoginFormState extends State<LoginForm> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                 ),
+
+                (isLoading ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 32),
+                  child: LinearProgressIndicator(),
+                ) : const SizedBox()),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -162,15 +168,15 @@ class LoginFormState extends State<LoginForm> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     // Facebook
-                    IconButton(
-                        onPressed: () => loginUsingFacebook,
-                        icon: Image.asset(
-                          'images/facebook_logo.png',
-                          height: 48,
-                          width: 48,
-                          errorBuilder: (context, error, stackTrace) =>
-                              drawErrorIcon(context),
-                        )),
+                    // IconButton(
+                    //     onPressed: () => loginUsingFacebook,
+                    //     icon: Image.asset(
+                    //       'images/facebook_logo.png',
+                    //       height: 48,
+                    //       width: 48,
+                    //       errorBuilder: (context, error, stackTrace) =>
+                    //           drawErrorIcon(context),
+                    //     )),
                     // Google
                     IconButton(
                         onPressed: signInWithGoogle,
@@ -182,15 +188,15 @@ class LoginFormState extends State<LoginForm> {
                               drawErrorIcon(context),
                         )),
                     // Twitter X
-                    IconButton(
-                        onPressed: () => loginUsingTwitter(),
-                        icon: Image.asset(
-                          'images/twitter_logo.png',
-                          height: 48,
-                          width: 48,
-                          errorBuilder: (context, error, stackTrace) =>
-                              drawErrorIcon(context),
-                        )),
+                    // IconButton(
+                    //     onPressed: () => loginUsingTwitter(),
+                    //     icon: Image.asset(
+                    //       'images/twitter_logo.png',
+                    //       height: 48,
+                    //       width: 48,
+                    //       errorBuilder: (context, error, stackTrace) =>
+                    //           drawErrorIcon(context),
+                    //     )),
                   ],
                 ),
                 const Padding(
@@ -324,7 +330,7 @@ class LoginFormState extends State<LoginForm> {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('message: $message')));
+            .showSnackBar(const SnackBar(content: Text('Login failed. Invalid credentials.')));
       }
     }
 

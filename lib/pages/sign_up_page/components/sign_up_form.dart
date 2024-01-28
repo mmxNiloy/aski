@@ -22,6 +22,7 @@ class SignUpFormState extends State<SignUpForm> {
   String? passErrorMessage;
   bool showPassword = false;
   bool isTnCChecked = false;
+  bool _isLoading = false;
 
   final _signupFormKey = GlobalKey<FormState>();
 
@@ -130,12 +131,17 @@ class SignUpFormState extends State<SignUpForm> {
                 icon: const Icon(Icons.check),
                 style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48)),
-                onPressed: signup,
+                onPressed: _isLoading ? null : signup,
                 label: const Text(
                   'Sign up',
                   style: TextStyle(fontSize: 16),
                 ),
               )),
+
+          (_isLoading ? const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 32),
+            child: LinearProgressIndicator(),
+          ) : const SizedBox()),
 
           const Padding(padding: EdgeInsets.symmetric(vertical: 8)),
           const Padding(
@@ -186,6 +192,12 @@ class SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> signup() async {
+    if(_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     debugPrint(
         'sign_up_form.dart > signup() > Sign-up button has been clicked.');
     // If T&C are not agreed with
@@ -225,8 +237,22 @@ class SignUpFormState extends State<SignUpForm> {
 
         // Redirect to dashboard, prompt first time login BS
         if (context.mounted) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Dashboard()));
+          await showDialog(context: context, builder: (context) => AlertDialog(
+            title: const Text('Signup successful!'),
+            content: Text('Welcome to ASKi, $firstName $lastName.\nLogin to discover ASKi right away.'),
+            actions: [
+              TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Ok'),
+              )
+            ],
+          ));
+          if(context.mounted) {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const Dashboard()));
+          }
         }
       } on FirebaseAuthException catch (err) {
         if (err.code == 'weak-password') {
@@ -236,8 +262,18 @@ class SignUpFormState extends State<SignUpForm> {
         }
       } catch (err) {
         debugPrint(err.toString());
+
+        if(context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                  'Invalid form values! Please insert valid information.')));
+        }
       }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void verifyCode() {

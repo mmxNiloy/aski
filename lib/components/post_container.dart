@@ -169,7 +169,8 @@ class _PostContainerState extends State<PostContainer> {
           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
           // Profile pic
           child: CircleAvatar(
-            backgroundImage: _renderAvatar(),
+            foregroundImage: _renderAvatar(),
+            backgroundImage: const AssetImage('images/profile_image.jpg'),
           ),
         ),
 
@@ -504,11 +505,11 @@ class _PostContainerState extends State<PostContainer> {
   }
 
   ImageProvider? _renderAvatar() {
-    if(postOwner!.profilePicUri != null && postOwner!.profilePicUri!.isNotEmpty) {
-      return NetworkImage(postOwner!.profilePicUri!);
+    if(postOwner.profilePicUri != null && postOwner.profilePicUri!.isNotEmpty) {
+      return NetworkImage(postOwner.profilePicUri!);
     }
 
-    return const AssetImage('images/profile_image.jpg');
+    return null;
   }
 }
 
