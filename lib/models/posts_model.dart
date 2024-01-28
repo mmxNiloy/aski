@@ -9,48 +9,55 @@ class PostVisibility {
 
 class PostsModel {
   final String title;
-  final String message;
+  final String content;
   final Timestamp timestamp;
   final String ownerId;
-  final String visibility;
+  String? postID;
   final int upvotes;
   final int downvotes;
-  late String? postID;
+  List<String> imgRefs;
 
-  PostsModel(
-      {required this.title,
-      required this.message,
-      required this.ownerId,
-      required this.visibility,
-      required this.timestamp,
-      required this.upvotes,
-      required this.downvotes,
-      this.postID});
+  PostsModel({
+    required this.title,
+    required this.content,
+    required this.ownerId,
+    required this.timestamp,
+    required this.upvotes,
+    required this.downvotes,
+    required this.imgRefs,
+    this.postID,
+  });
 
   factory PostsModel.fromJson(Map<String, dynamic> json) {
+    final List<String> links = [];
+    final List<dynamic> imgRefResponses =
+        json[PostsCollection.imgRefsKey] ?? [];
+    for (dynamic link in imgRefResponses) {
+      links.add(link.toString());
+    }
+
     return PostsModel(
         title: json[PostsCollection.titleKey],
-        message: json[PostsCollection.messageKey],
+        content: json[PostsCollection.contentKey] ?? '',
         ownerId: json[PostsCollection.ownerIdKey],
-        visibility: json[PostsCollection.visibilityKey],
+        imgRefs: links,
         timestamp: json[PostsCollection.timestampKey],
         upvotes: json[PostsCollection.upVotesKey],
-        downvotes: json[PostsCollection.downVotesKey]
-    );
+        downvotes: json[PostsCollection.downVotesKey]);
   }
 
   @override
   String toString() {
-    return 'PostModel: {\n\ttitle: $title\n\tmessage: $message\n\townerId: $ownerId\n\ttimestamp: ${timestamp.toString()}\n\tvisibility: $visibility\n}';
+    return 'PostModel: {\n\ttitle: $title\n\tmessage: $content\n\townerId: $ownerId\n\ttimestamp: ${timestamp.toString()}\n\tvisibility: $imgRefs\n}';
   }
 
   Map<String, dynamic> toFirestore() {
     return {
       PostsCollection.titleKey: title,
-      PostsCollection.messageKey: message,
+      PostsCollection.contentKey: content,
       PostsCollection.timestampKey: timestamp,
       PostsCollection.ownerIdKey: ownerId,
-      PostsCollection.visibilityKey: visibility,
+      PostsCollection.imgRefsKey: imgRefs,
       PostsCollection.upVotesKey: upvotes,
       PostsCollection.downVotesKey: downvotes
     };
