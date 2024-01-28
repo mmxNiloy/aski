@@ -51,7 +51,10 @@ class _AskQuestionTabState extends State<AskQuestionTab>
           TextButton(
             onPressed: _handlePost,
             child: const Row(
-              children: [Text('Next'), Icon(Icons.chevron_right)],
+              children: [
+                Text('Post'),
+                Icon(Icons.post_add_rounded),
+              ],
             ),
           )
         ],
@@ -70,8 +73,10 @@ class _AskQuestionTabState extends State<AskQuestionTab>
             children: [
               TextFormField(
                 validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'Title cannot be empty';
+                  if (value == null || value.isEmpty) {
+                    return "Title cannot be empty.";
+                  }
+
                   return null;
                 },
                 onChanged: (value) {
@@ -95,7 +100,7 @@ class _AskQuestionTabState extends State<AskQuestionTab>
                     },
                     style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration.collapsed(
-                      hintText: 'Body (optional)',
+                      hintText: "What's on your mind?",
                     ),
                   ),
                 ),
@@ -179,7 +184,7 @@ class _AskQuestionTabState extends State<AskQuestionTab>
 
   String? validateTitle(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Title cannot be empty.';
+      return "Title cannot be empty.";
     }
 
     return null;
@@ -201,6 +206,9 @@ class _AskQuestionTabState extends State<AskQuestionTab>
   }
 
   Future<void> _handlePost() async {
+    if (!_fkPost.currentState!.validate()) {
+      return;
+    }
     User user = FirebaseAuth.instance.currentUser!;
     List<String> links = [];
     if (_images.isNotEmpty) {
