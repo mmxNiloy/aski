@@ -252,37 +252,41 @@ class _PostContainerState extends State<PostContainer> {
           ),
 
           // Post Content
-
-          Text(
-            widget.model.content,
-            maxLines: 5,
-            overflow: TextOverflow.fade,
-          ),
+          widget.model.content.isEmpty
+              ? const Text('')
+              : Text(
+                  widget.model.content,
+                  maxLines: 5,
+                  overflow: TextOverflow.fade,
+                ),
 
           // Post images
-          SizedBox(
-            height: MediaQuery.of(context).size.height / 5,
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemCount: widget.model.imgRefs.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+          widget.model.imgRefs.isEmpty
+              ? const Text('')
+              : SizedBox(
+                  height: MediaQuery.of(context).size.height / 5,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemCount: widget.model.imgRefs.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 50,
+                        margin: EdgeInsets.symmetric(
+                            horizontal:
+                                MediaQuery.of(context).size.height / 50),
+                        child: Image.network(
+                          widget.model.imgRefs.elementAt(index),
+                          height: MediaQuery.of(context).size.height / 5,
+                        ),
+                      );
+                    },
                   ),
-                  elevation: 50,
-                  margin: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.height / 50),
-                  child: Image.network(
-                    widget.model.imgRefs.elementAt(index),
-                    height: MediaQuery.of(context).size.height / 5,
-                  ),
-                );
-              },
-            ),
-          ),
+                ),
         ],
       ),
     );
@@ -502,10 +506,3 @@ class _PostContainerState extends State<PostContainer> {
 }
 
 enum VoteType { empty, upvote, downvote }
-//  SizedBox(
-//               height: 128,
-//               width: 128,
-//               child: Image.network(
-//                 widget.model.imgRefs.elementAt(index),
-//               ),
-//             ),
