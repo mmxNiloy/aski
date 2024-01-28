@@ -239,7 +239,7 @@ class SignUpFormState extends State<SignUpForm> {
         if (context.mounted) {
           await showDialog(context: context, builder: (context) => AlertDialog(
             title: const Text('Signup successful!'),
-            content: Text('Welcome to ASKi, $firstName $lastName.\nLogin to discover ASKi right away.'),
+            content: Text('Welcome to ASKi, $firstName $lastName.\nLet\'s discover ASKi, shall we?'),
             actions: [
               TextButton(
                 onPressed: (){

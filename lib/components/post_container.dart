@@ -88,7 +88,7 @@ class _PostContainerState extends State<PostContainer> {
             break;
         }
       }
-    }, onError: (error) => debugPrint(error));
+    }, onError: (error) => debugPrint('Post Container error >${error.toString()}'));
   }
 
   Future<UserModel> getOwnerInfo() async {
