@@ -1,10 +1,16 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:aski/models/posts_model.dart';
 import 'package:aski/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DashboardDrawerProfile extends StatefulWidget {
   final UserModel? user;
+
   const DashboardDrawerProfile({super.key, this.user});
 
   //const DashboardDrawerProfile({super.key});
@@ -14,7 +20,49 @@ class DashboardDrawerProfile extends StatefulWidget {
 }
 
 class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
+  bool _isLoadLogout = false;
+  Uint8List? _selectedImage;
+
+  ImageProvider? renderProfilePicture() {
+    return _selectedImage != null
+        ? MemoryImage(_selectedImage!)
+        : const AssetImage('images/profile_image.jpg') as ImageProvider;
+  }
+
+  Future<void> pickingImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      final Uint8List imageFinal = await image!.readAsBytes();
+
+      /// Taking as Uint8List because MemoryImage takes this data type. SO
+      /// I used readAsBytes() to cast image which is XFile as Uint8List
+      setState(() {
+        _selectedImage = imageFinal;
+      });
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      /// Now upload the image to Firebase storage.
+      final storageRef = FirebaseStorage.instance.ref();
+      final fileRef = storageRef.child("images/profile/$uid");
+      await fileRef.putData(_selectedImage!);
+      // String link = await fileRef.getDownloadURL();
+      // return link;
+    } catch (err) {
+      // String e = err.toString();
+      const snackBar = SnackBar(
+        content: Text("Image is erring!"),
+      );
+
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
   Future<void> logout(BuildContext context) async {
+    setState(() {
+      _isLoadLogout = true;
+    });
     await FirebaseAuth.instance.signOut();
 
     if (context.mounted) {
@@ -23,6 +71,9 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
         ModalRoute.withName("/"),
       );
     }
+    setState(() {
+      _isLoadLogout = false;
+    });
 
     return;
   }
@@ -45,17 +96,15 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
                       minRadius: MediaQuery.of(context).size.width / 8,
                       maxRadius: MediaQuery.of(context).size.width / 4,
                       backgroundColor: const Color.fromARGB(255, 178, 175, 175),
-                      foregroundImage: const NetworkImage(
-                        "https://media.istockphoto.com/id/1476170969/photo/portrait-of-young-man-ready-for-job-business-concept.webp?b=1&s=170667a&w=0&k=20&c=FycdXoKn5StpYCKJ7PdkyJo9G5wfNgmSLBWk3dI35Zw=",
-                      ), //! Profile picture needed
+                      backgroundImage: renderProfilePicture(),
                     ),
                   ),
                   Expanded(
                     flex: 1,
                     child: Text(
-                      widget.user == null ? 
-                      "Username":
-                      '${widget.user!.firstName} ${widget.user!.lastName}', //! User name needed
+                      widget.user == null
+                          ? "Username"
+                          : '${widget.user!.firstName} ${widget.user!.lastName}',
                       style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height / 30,
                         fontFamily: 'Pacifico',
@@ -73,31 +122,50 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
               children: [
+                ExpansionTile(
+                  title: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.settings),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text("Settings"),
+                    ],
+                  ),
+                  children: [
+                    ListTile(
+                      title: TextButton(
+                        onPressed: pickingImage,
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo_rounded),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text("Change Profile"),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
                 OutlinedButton(
                   onPressed: () {
                     logout(context);
                   },
-                  child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.logout_outlined),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text("Logout"),
-                      ]),
-                ),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.settings),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text("Settings"),
-                      ]), //! Other Funtionalities should be added
+                  child: _isLoadLogout
+                      ? const CircularProgressIndicator()
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                              Icon(Icons.logout_outlined),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text("Logout"),
+                            ]),
                 ),
               ],
             ),
