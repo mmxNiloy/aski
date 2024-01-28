@@ -13,10 +13,10 @@ class PostsCollection {
   static const String name = 'posts';
 
   static const String titleKey = 'title';
-  static const String messageKey = 'message';
+  static const String contentKey = 'content';
   static const String timestampKey = 'timestamp';
   static const String ownerIdKey = 'owner_id';
-  static const String visibilityKey = 'visibility';
+  static const String imgRefsKey = 'img_refs';
   static const String upVotesKey = 'upvotes';
   static const String downVotesKey = 'downvotes';
 

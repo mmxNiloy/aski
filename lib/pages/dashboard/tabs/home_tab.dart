@@ -12,12 +12,13 @@ class HomeTab extends StatefulWidget {
   State<StatefulWidget> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin<HomeTab> {
+class _HomeTabState extends State<HomeTab>
+    with AutomaticKeepAliveClientMixin<HomeTab> {
   @override
   bool get wantKeepAlive => true;
 
   late List<PostsModel> posts;
-  late final Stream<QuerySnapshot<Map<String, dynamic>>> _postsStream;
+  Stream<QuerySnapshot<Map<String, dynamic>>>? _postsStream;
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
   @override
@@ -25,7 +26,13 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin<Ho
     // TODO: implement initState
     super.initState();
 
-    _postsStream = buildQuery(false).get().asStream();
+    loadPosts();
+  }
+
+  Future<void> loadPosts() async {
+    setState(() {
+      _postsStream = buildQuery(false).get().asStream();
+    });
   }
 
   Query<Map<String, dynamic>> buildQuery([bool? isLimited, int? lim]) {
@@ -37,13 +44,10 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin<Ho
     final db = FirebaseFirestore.instance;
     final collRef = db.collection(PostsCollection.name);
     // Get top 10 recent public posts
-    // TODO: Show the private posts in another tab
     // Subject to change
-    var query = collRef
-        .where(PostsCollection.visibilityKey, isEqualTo: PostsCollection.visibilityPublic)
-        .orderBy(PostsCollection.timestampKey, descending: true);
+    var query = collRef.orderBy(PostsCollection.timestampKey, descending: true);
 
-    if(isLimited) query = query.limit(lim);
+    if (isLimited) query = query.limit(lim);
 
     return query;
   }
@@ -56,50 +60,57 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin<Ho
   }
 
   Widget postsStreamBuilder() {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: _postsStream,
-        builder: (cotext, snapshot) {
-          if(snapshot.hasError) {
-            return const Text('Error loading posts');
-          }
+    return RefreshIndicator(
+      onRefresh: loadPosts,
+      child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: _postsStream,
+          builder: (cotext, snapshot) {
+            if (snapshot.hasError) {
+              return const Text('Error loading posts');
+            }
 
-          if(snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      'Loading...',
-                      textAlign: TextAlign.center,
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: CircularProgressIndicator(),
                     ),
-                  )
-                ],
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Loading...',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(
+                children: snapshot.data!.docs
+                    .map((DocumentSnapshot<Map<String, dynamic>> docSnap) {
+                      Map<String, dynamic> data = docSnap.data()!;
+                      PostsModel mPost = PostsModel.fromJson(data);
+                      mPost.postID = docSnap.id;
+
+                      return PostContainer(
+                        model: mPost,
+                        isPreview: true,
+                      );
+                    })
+                    .toList()
+                    .cast(),
               ),
             );
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView(
-              children: snapshot.data!.docs.map((DocumentSnapshot<Map<String, dynamic>> docSnap){
-                Map<String, dynamic> data = docSnap.data()!;
-                PostsModel mPost = PostsModel.fromJson(data);
-                mPost.postID = docSnap.id;
-
-                return PostContainer(
-                    model: mPost,
-                    isPreview: true,
-                );
-              }).toList().cast(),
-            ),
-          );
-        }
+          }),
     );
   }
 }
