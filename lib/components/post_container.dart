@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:aski/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:intl/intl.dart';
 
 class PostContainer extends StatefulWidget {
   final PostsModel model;
@@ -153,6 +154,7 @@ class _PostContainerState extends State<PostContainer> {
     );
   }
 
+
   Widget drawCardHeader() {
     // Show User Profile Pic
     // Show User name
@@ -192,7 +194,8 @@ class _PostContainerState extends State<PostContainer> {
               Row(
                 children: [
                   Text(
-                    'Posted on ${widget.model.getStandardTime()}',
+                    _getPostTime(),
+                   // 'Posted on ${widget.model.getStandardTime()}',
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 10,
@@ -511,6 +514,37 @@ class _PostContainerState extends State<PostContainer> {
 
     return null;
   }
+
+  String _getPostTime() {
+    // What's the difference between now and the time it was posted
+    int timeDiff = DateTime.now().millisecondsSinceEpoch - widget.model.timestamp!.toDate().millisecondsSinceEpoch;
+
+    if(timeDiff < 60*1000)
+      return 'Just now';
+    // Minutes
+    else if(60 * 60 * 1000 > timeDiff) {
+      int min = timeDiff.toDouble() ~/ (1000.0 * 60.0);
+      return '$min minute${min > 1 ? 's' : ''} ago';
+    }
+
+    // Hours
+    if(24 * 60 * 60 * 1000 > timeDiff) {
+      int hrs = timeDiff.toDouble() ~/ (1000.0 * 60.0 * 60.0);
+      return '$hrs hour${hrs > 1 ? 's' : ''} ago';
+    }
+
+    // Day
+    if(7 * 24 * 60 * 60 * 1000 > timeDiff) {
+      int days = timeDiff.toDouble() ~/ (1000.0 * 60.0 * 60.0 * 24.0);
+      return '$days day${days > 1 ? 's' : ''} ago';
+    }
+
+    // Date
+
+    return DateFormat('dd-MMM-yy').format(widget.model.timestamp!.toDate());
+
+  }
+
 }
 
 enum VoteType { empty, upvote, downvote }

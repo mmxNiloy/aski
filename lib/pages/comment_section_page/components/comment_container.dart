@@ -105,8 +105,10 @@ class CommentContainer extends StatelessWidget {
     // What's the difference between now and the time it was posted
     int timeDiff = DateTime.now().millisecondsSinceEpoch - model.timestamp!.toDate().millisecondsSinceEpoch;
 
+    if(timeDiff < 60*1000)
+      return 'Just now';
     // Minutes
-    if(60 * 60 * 1000 > timeDiff) {
+    else if(60 * 60 * 1000 > timeDiff) {
       int min = timeDiff.toDouble() ~/ (1000.0 * 60.0);
       return '$min minute${min > 1 ? 's' : ''} ago';
     }

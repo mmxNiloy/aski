@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'forgot_pass_page.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -115,6 +116,10 @@ class LoginFormState extends State<LoginForm> {
                     onChanged: (value) => setState(() => password = value),
                   ),
                 ),
+
+
+
+
                 // Login button
                 Padding(
                     padding: const EdgeInsets.symmetric(
@@ -129,6 +134,32 @@ class LoginFormState extends State<LoginForm> {
                         style: TextStyle(fontSize: 16),
                       ),
                     )),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context){
+                              return ForgotPasswordPage() ;
+                            }));
+                      },
+                      child: Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                 ),
@@ -162,6 +193,7 @@ class LoginFormState extends State<LoginForm> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                 ),
+
                 // Login method list
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
