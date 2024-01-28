@@ -33,7 +33,9 @@ class CommentContainer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Profile picture goes here
-                  const CircleAvatar(),
+                  CircleAvatar(
+                    backgroundImage: _renderAvatar(snapshot.data!.profilePicUri),
+                  ),
                   Card(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -88,6 +90,14 @@ class CommentContainer extends StatelessWidget {
         return const CommentContainerShimmer();
       },
     );
+  }
+
+  ImageProvider? _renderAvatar(String? dpLink) {
+    if(dpLink != null && dpLink.isNotEmpty) {
+      return NetworkImage(dpLink);
+    }
+
+    return const AssetImage('images/profile_image.jpg');
   }
 
   String _getPostTime() {

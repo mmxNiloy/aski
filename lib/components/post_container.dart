@@ -165,12 +165,11 @@ class _PostContainerState extends State<PostContainer> {
         // Grab profile pic from gmail, fb or other platforms
         // Grab from database as well if exists
         // Otherwise placeholder image
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
           // Profile pic
-          child: Icon(
-            Icons.circle_rounded,
-            size: 40,
+          child: CircleAvatar(
+            backgroundImage: _renderAvatar(),
           ),
         ),
 
@@ -502,6 +501,14 @@ class _PostContainerState extends State<PostContainer> {
     // Navigator.of(context).push(
     //   MaterialPageRoute(builder: (context) => CommentSectionPage(postID: widget.model.postID!))
     // );
+  }
+
+  ImageProvider? _renderAvatar() {
+    if(postOwner!.profilePicUri != null && postOwner!.profilePicUri!.isNotEmpty) {
+      return NetworkImage(postOwner!.profilePicUri!);
+    }
+
+    return const AssetImage('images/profile_image.jpg');
   }
 }
 

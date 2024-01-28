@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:aski/constants/database_constants.dart';
 import 'package:aski/models/posts_model.dart';
 import 'package:aski/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -24,9 +26,17 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
   Uint8List? _selectedImage;
 
   ImageProvider? renderProfilePicture() {
-    return _selectedImage != null
-        ? MemoryImage(_selectedImage!)
-        : const AssetImage('images/profile_image.jpg') as ImageProvider;
+    if(
+      widget.user!.profilePicUri != null && widget.user!.profilePicUri!.isNotEmpty
+    ) {
+      return NetworkImage(widget.user!.profilePicUri!);
+    }
+
+    if(_selectedImage != null) {
+      return MemoryImage(_selectedImage!);
+    }
+
+    return const AssetImage('images/profile_image.jpg');
   }
 
   Future<void> pickingImage() async {
@@ -46,8 +56,15 @@ class _DashboardDrawerProfileState extends State<DashboardDrawerProfile> {
       final storageRef = FirebaseStorage.instance.ref();
       final fileRef = storageRef.child("images/profile/$uid");
       await fileRef.putData(_selectedImage!);
-      // String link = await fileRef.getDownloadURL();
-      // return link;
+
+      // Set profile pic url for the user
+      String link = await fileRef.getDownloadURL();
+      final docRef = FirebaseFirestore.instance
+          .collection(UsersCollection.name)
+          .doc(uid);
+      await docRef.update(<String, String>{
+        UsersCollection.pPicUriKey: link
+      });
     } catch (err) {
       // String e = err.toString();
       const snackBar = SnackBar(

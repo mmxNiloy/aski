@@ -37,8 +37,11 @@ class _DashboardState extends State<Dashboard> {
         .get();
 
     final json = docSnap.data()!;
-
-    return UserModel.fromJson(json);
+    final model = UserModel.fromJson(json);
+    setState(() {
+      _mUser = model;
+    });
+    return model;
   }
 
   final List<Widget> _tabs = [
@@ -87,7 +90,9 @@ class _DashboardState extends State<Dashboard> {
                 Scaffold.of(context).openEndDrawer();
               },
               style: ElevatedButton.styleFrom(shape: const CircleBorder()),
-              child: const CircleAvatar(),
+              child: CircleAvatar(
+                backgroundImage: _renderAvatar(),
+              ),
             ),
           ),
         ],
@@ -140,5 +145,13 @@ class _DashboardState extends State<Dashboard> {
         _pageController.jumpToPage(value);
       }
     });
+  }
+
+  ImageProvider? _renderAvatar() {
+    if(_mUser!.profilePicUri != null && _mUser!.profilePicUri!.isNotEmpty) {
+      return NetworkImage(_mUser!.profilePicUri!);
+    }
+
+    return const AssetImage('images/profile_image.jpg');
   }
 }

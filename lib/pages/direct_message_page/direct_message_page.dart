@@ -45,9 +45,11 @@ class DirectMessagePageState extends State<DirectMessagePage> {
           children: [
 
             // Profile pic avatar container.
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: CircleAvatar(),
+              child: CircleAvatar(
+                backgroundImage: _renderAvatar(),
+              ),
             ),
 
             // Profile name
@@ -66,5 +68,13 @@ class DirectMessagePageState extends State<DirectMessagePage> {
         ),
       ),
     );
+  }
+
+  ImageProvider? _renderAvatar() {
+    if(widget.receiver.profilePicUri != null && widget.receiver.profilePicUri!.isNotEmpty) {
+      return NetworkImage(widget.receiver.profilePicUri!);
+    }
+
+    return const AssetImage('images/profile_image.jpg');
   }
 }

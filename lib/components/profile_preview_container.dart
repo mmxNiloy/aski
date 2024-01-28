@@ -26,9 +26,11 @@ class ProfilePreviewContainer extends StatelessWidget {
           child: Row(
             children: [
               // Profile pic avatar container.
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: CircleAvatar(),
+                child: CircleAvatar(
+                  backgroundImage: _renderAvatar(),
+                ),
               ),
 
               // Profile name
@@ -38,5 +40,13 @@ class ProfilePreviewContainer extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ImageProvider? _renderAvatar() {
+    if(model.profilePicUri != null && model.profilePicUri!.isNotEmpty) {
+      return NetworkImage(model.profilePicUri!);
+    }
+
+    return const AssetImage('images/profile_image.jpg');
   }
 }
