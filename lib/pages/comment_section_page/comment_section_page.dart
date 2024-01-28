@@ -19,10 +19,9 @@ class _PostDetailPageState extends State<CommentSectionPage> {
   final TextEditingController _commentController = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
-    _stream = buildQuery().get().asStream();
+    _stream = buildQuery().snapshots();
   }
 
   Query<Map<String, dynamic>> buildQuery([bool? isLimited, int? lim]) {
@@ -35,18 +34,12 @@ class _PostDetailPageState extends State<CommentSectionPage> {
     final collRef = db.collection(PostsCollection.name);
     final docRef = collRef.doc(widget.postID);
     final commentCollRef = docRef.collection(PostCommentsSubCollection.name);
-    // Get top 10 recent public posts
-    // TODO: Show the private posts in another tab
-    // Subject to change
 
-    // TODO: Create a key for comments
-    //  using the timestamp in firebase firestore
-    // var query = commentCollRef
-    //     .orderBy(PostsCollection.timestampKey, descending: true);
-    //
-    // if(isLimited) query = query.limit(lim);
-
-    return commentCollRef;
+    return commentCollRef
+        .orderBy(
+      FieldPath.fromString(PostCommentsSubCollection.timestampKey),
+      descending: true
+    );
   }
 
 
@@ -56,23 +49,22 @@ class _PostDetailPageState extends State<CommentSectionPage> {
       resizeToAvoidBottomInset: true,
       body: Column(
         children: [
-          Flexible(
-              flex: 9,
+          Expanded(
               child: commentsStreamBuilder()
           ),
-          Flexible(
-              flex: 1,
-              child: TextField(
-                controller: _commentController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: 'Write a comment',
-                  suffix: IconButton(
-                      onPressed: postComment,
-                      icon: const Icon(Icons.send)
-                  ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: TextField(
+              controller: _commentController,
+              decoration: InputDecoration(
+                hintText: 'Write a comment',
+                suffix: IconButton(
+                    onPressed: postComment,
+                    icon: const Icon(Icons.send)
                 ),
-              )
+              ),
+            ),
           ),
         ],
       ),
@@ -107,32 +99,24 @@ class _PostDetailPageState extends State<CommentSectionPage> {
           );
         }
 
-        if(snapshot.hasData) {
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> comments = snapshot.data!.docs;
-
-          if(comments.isEmpty) return const Center(child: Text("No comments yet."));
-          // for(var i = 0 ; i < 10 ; i++) {
-          //   comments.add(comments.first);
-          // }
-
-          return ListView(
-            children: comments.map(
-                (DocumentSnapshot<Map<String, dynamic>> docSnap) {
-                  return CommentContainer(
-                      model: CommentsModel.fromJSON(docSnap.data()!)
-                  );
-                }
-            ).toList().cast(),
-          );
-        }
-
-        return const Center(child: Text("No comments yet."));
+        return ListView(
+          children: snapshot.data!.docs.map(
+                  (DocumentSnapshot<Map<String, dynamic>> docSnap) {
+                    Map<String, dynamic> json = docSnap.data()!;
+                return CommentContainer(
+                    model: CommentsModel.fromJSON(json)
+                );
+              }
+          ).toList().cast(),
+        );
       },
     );
   }
 
   Future<void> postComment() async {
     String comment = _commentController.text.trim();
+
+    _commentController.clear();
 
     User mUser = FirebaseAuth.instance.currentUser!;
     if(comment.isEmpty) return;
